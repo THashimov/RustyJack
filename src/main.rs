@@ -1,3 +1,9 @@
+use card_manager::Shoe;
+
+mod window_manager;
+mod card_manager;
+mod tests;
+
 fn main() {
-    println!("Hello, world!");
+    let shoe = Shoe::create_shoe();
 }
