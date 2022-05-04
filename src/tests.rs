@@ -1,8 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::card_manager::{Suit, Card, self, Deck, Shoe};
+    use crate::card_manager::{Suit, Card, self};
     extern crate rand;
-    use rand::{prelude::SliceRandom, thread_rng};
 
     #[test]
     fn get_img_src_for_card() {
@@ -76,9 +75,43 @@ mod tests {
     }
 
     #[test]
-    fn shuffle_cards() {
-        let deck = Deck::create_deck().deck;
-        println!("{:?}", deck);
+    fn create_shoe() {
+        let mut shoe: Vec<Card> = Vec::new();
+
+        let mut value = 2;
+        let mut suit = Suit::Clubs;
+        let mut path = String::new();
+    
+        for _i in 0..6 {
+            for _j in 0..4 {
+                match _j {
+                    1 => { suit = Suit::Aces },
+                    2 => { suit = Suit::Diamonds },
+                    3 => { suit = Suit::Hearts },
+                    _ => {}
+                };
+
+                for _k in 0..13 {
+                    let img_src = card_manager::get_img_src_for_card(Some(value), Some(suit));
+                
+                    if let Some(str) = img_src {
+                        path = str
+                    }
+                
+                    let card = Card::create_card(value, suit, path.clone());
+                
+                    value += 1;
+                    if value > 14 {
+                        value = 2
+                    }
+                    shoe.push(card)
+                };
+            }
+        }
+        card_manager::shuffle_cards(&mut shoe);
+
+        assert_eq!(shoe.len() , 312)
+        
     }
 
 }

@@ -16,13 +16,8 @@ pub struct Card {
 }
 
 #[derive(Debug)]
-pub struct Deck {
-    pub deck: Vec<Card>    
-}
-
-#[derive(Debug)]
 pub struct Shoe {
-    pub shoe: Vec<Deck>
+    pub shoe: Vec<Card>
 }
 
 impl Card {
@@ -35,68 +30,49 @@ impl Card {
     }   
 }
 
-
-impl Deck {
-    pub fn create_deck() -> Deck {
+impl Shoe {
+    pub fn create_shoe() -> Shoe {
         let mut deck: Vec<Card> = Vec::new();
 
         let mut value = 2;
         let mut suit = Suit::Clubs;
         let mut path = String::new();
+    
+        for _i in 0..6 {
+            for _j in 0..4 {
+                match _j {
+                    1 => { suit = Suit::Aces },
+                    2 => { suit = Suit::Diamonds },
+                    3 => { suit = Suit::Hearts },
+                    _ => {}
+                };
 
-        for _i in 0..4 {
-            match _i {
-                1 => { suit = Suit::Aces },
-                2 => { suit = Suit::Diamonds },
-                3 => { suit = Suit::Hearts },
-                _ => {}
-            };
-            
-            for _j in 0..13 {
-                let img_src = get_img_src_for_card(Some(value), Some(suit));
-
-                if let Some(str) = img_src {
-                    path = str
-                }
-
-                let card = Card::create_card(value, suit, path.clone());
-
-                value += 1;
-                if value > 14 {
-                    value = 2
-                }
-                deck.push(card)
-            };
+                for _k in 0..13 {
+                    let img_src = get_img_src_for_card(Some(value), Some(suit));
+                
+                    if let Some(str) = img_src {
+                        path = str
+                    }
+                
+                    let card = Card::create_card(value, suit, path.clone());
+                
+                    value += 1;
+                    if value > 14 {
+                        value = 2
+                    }
+                    deck.push(card)
+                };
+            }
         }
-
-        shuffle_cards(&mut deck);
-        
-        Deck {
-            deck
-        }
-    }
-}
-
-impl Shoe {
-    pub fn create_shoe() -> Shoe {
-        let mut shoe: Vec<Deck> = Vec::new();
-
-        for i in 0..6 {
-            let deck = Deck::create_deck();
-            shoe.push(deck)
-        };
-
+            shuffle_cards(&mut deck);
+    
         Shoe {
-            shoe
+            shoe: deck
         }
 
 
     }
 }
-
-
-
-
 
 pub fn get_img_src_for_card(value: Option<u8>, suit: Option<Suit>) -> Option<String> {
     let mut path = String::from("./src/assets/");
@@ -128,7 +104,6 @@ pub fn get_img_src_for_card(value: Option<u8>, suit: Option<Suit>) -> Option<Str
 
     Some(path)
 }
-
 
 pub fn shuffle_cards(deck: &mut Vec<Card>) {
     deck.shuffle(&mut thread_rng());
