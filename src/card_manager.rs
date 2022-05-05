@@ -3,7 +3,7 @@ use rand::{prelude::SliceRandom, thread_rng};
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Suit {
     Clubs,
-    Aces,
+    Spades,
     Diamonds,
     Hearts,
 }
@@ -41,7 +41,7 @@ impl Shoe {
         for _i in 0..6 {
             for _j in 0..4 {
                 match _j {
-                    1 => suit = Suit::Aces,
+                    1 => suit = Suit::Spades,
                     2 => suit = Suit::Diamonds,
                     3 => suit = Suit::Hearts,
                     _ => {}
@@ -67,6 +67,10 @@ impl Shoe {
         shuffle_cards(&mut deck);
 
         Shoe { shoe: deck }
+    }
+
+    pub fn draw_card(&mut self) -> Card {
+        self.shoe.pop().unwrap()
     }
 }
 
@@ -94,7 +98,7 @@ pub fn get_img_src_for_card(value: Option<u8>, suit: Option<Suit>) -> Option<Str
         Some(Suit::Diamonds) => path.push_str("D.png"),
         Some(Suit::Hearts) => path.push_str("H.png"),
         Some(Suit::Clubs) => path.push_str("C.png"),
-        Some(Suit::Aces) => path.push_str("A.png"),
+        Some(Suit::Spades) => path.push_str("S.png"),
         None => return None,
     }
 

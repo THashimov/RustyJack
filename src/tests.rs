@@ -1,6 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use crate::card_manager::{self, Card, Suit};
+    use sdl2::image::LoadTexture;
+
+    use crate::card_manager::{self, Card, Suit, Shoe};
+    use crate::player_manager::{Players};
+    use crate::window_manager::WindowManager;
     extern crate rand;
 
     #[test]
@@ -30,7 +34,7 @@ mod tests {
             Suit::Diamonds => path.push_str("D.png"),
             Suit::Hearts => path.push_str("H.png"),
             Suit::Clubs => path.push_str("C.png"),
-            Suit::Aces => path.push_str("A.png"),
+            Suit::Spades => path.push_str("A.png"),
         }
 
         println!("{}", path);
@@ -47,7 +51,7 @@ mod tests {
 
         for _i in 0..4 {
             match _i {
-                1 => suit = Suit::Aces,
+                1 => suit = Suit::Spades,
                 2 => suit = Suit::Diamonds,
                 3 => suit = Suit::Hearts,
                 _ => {}
@@ -91,7 +95,7 @@ mod tests {
         for _i in 0..6 {
             for _j in 0..4 {
                 match _j {
-                    1 => suit = Suit::Aces,
+                    1 => suit = Suit::Spades,
                     2 => suit = Suit::Diamonds,
                     3 => suit = Suit::Hearts,
                     _ => {}
@@ -118,4 +122,26 @@ mod tests {
 
         assert_eq!(shoe.len(), 312)
     }
+    
+    #[test]
+    fn create_players() {
+        let mut shoe = Shoe::create_shoe();
+        let players = Players::init_players_and_dealer(&mut shoe);
+
+        println!("{:?}", players);
+    }
+
+    #[test]
+    fn render_card() {
+        let window = WindowManager::new_window();
+        let mut shoe = Shoe::create_shoe();
+        let players = Players::init_players_and_dealer(&mut shoe);
+        
+        let src = &players.dealer.hand[0].img_src;
+
+        let background_img = window.texture_creator.load_texture(src).unwrap();
+
+
+    }
+
 }
