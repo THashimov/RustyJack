@@ -1,9 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use sdl2::image::LoadTexture;
-
-    use crate::card_manager::{self, Card, Suit, Shoe};
-    use crate::player_manager::{Players};
+    use crate::card_manager::{self, Card, Shoe, Suit};
+    use crate::player_input_manager;
+    use crate::player_manager::{Players, WhoseTurn};
     use crate::window_manager::WindowManager;
     extern crate rand;
 
@@ -122,26 +121,34 @@ mod tests {
 
         assert_eq!(shoe.len(), 312)
     }
-    
+
     #[test]
     fn create_players() {
+        let window = WindowManager::new_window();
         let mut shoe = Shoe::create_shoe();
-        let players = Players::init_players_and_dealer(&mut shoe);
+        let players = Players::init_players_and_dealer(&mut shoe, &window.window_size);
 
         println!("{:?}", players);
     }
 
     #[test]
-    fn render_card() {
-        let window = WindowManager::new_window();
+    fn render_initial_hands() {
+        let mut window = WindowManager::new_window();
+        window.load_background();
+
         let mut shoe = Shoe::create_shoe();
-        let players = Players::init_players_and_dealer(&mut shoe);
-        
-        let src = &players.dealer.hand[0].img_src;
+        let mut players = Players::init_players_and_dealer(&mut shoe, &window.window_size);
 
-        let background_img = window.texture_creator.load_texture(src).unwrap();
+        players.draw_second_card_for_every_player(&mut shoe);
 
+        let mut src = String::new();
+        let mut coords = (0, 0);
 
+        src = players.dealer.hand[0].img_src.clone();
+        coords = players.dealer.coords;
+        window.render_card(&src, coords);
+        players.set_player_coords();
+        window.refresh_screen();
+       
     }
-
 }
