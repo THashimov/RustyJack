@@ -69,7 +69,6 @@ impl Players {
             self.player_one.coords.1 -= 20;
             window.render_card(&src, coords);
             window.refresh_screen();
-            println!("{:?}", self.player_one.coords);
         }
 
         for i in 0..2 {
@@ -79,8 +78,6 @@ impl Players {
             self.player_two.coords.1 -= 20;
             window.render_card(&src, coords);
             window.refresh_screen();
-            println!("{:?}", self.player_two.coords);
-
         }
 
         for i in 0..2 {
@@ -90,8 +87,6 @@ impl Players {
             self.player_three.coords.1 -= 20;
             window.render_card(&src, coords);
             window.refresh_screen();
-            println!("{:?}", self.player_three.coords);
-
         }
 
         for i in 0..2 {
@@ -101,8 +96,6 @@ impl Players {
             self.player_four.coords.1 -= 20;
             window.render_card(&src, coords);
             window.refresh_screen();
-            println!("{:?}", self.player_four.coords);
-
         }
     }
 }

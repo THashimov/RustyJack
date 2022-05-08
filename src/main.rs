@@ -5,18 +5,23 @@ mod player_manager;
 mod tests;
 mod window_manager;
 
+use std::{thread, time::Duration};
+
 use card_manager::Shoe;
 use player_manager::Players;
 use window_manager::WindowManager;
 
 fn main() {
     let mut window = WindowManager::new_window();
+    window.canvas.clear();
     window.load_background();
     let mut shoe = Shoe::create_shoe();
     let mut players = Players::init_players_and_dealer(&mut shoe, &window.window_size);
     players.draw_second_card_for_every_player(&mut shoe);
-   
+    
     window.render_initial_cards(&mut players);
+    window.render_balance_and_bet_text(&mut players.player_one);
+
     window.refresh_screen();
 
     'running: loop {

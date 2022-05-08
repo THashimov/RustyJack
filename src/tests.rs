@@ -149,6 +149,17 @@ mod tests {
         window.render_card(&src, coords);
         players.set_player_coords();
         window.refresh_screen();
-       
     }
+
+    #[test]
+    fn get_bank_balance() {
+        let mut shoe = Shoe::create_shoe();
+        let mut window = WindowManager::new_window();
+        let players = Players::init_players_and_dealer(&mut shoe, &window.window_size);
+
+        let bank = players.player_one.bank_balance;
+
+        println!("{}", bank)
+    }
+
 }
