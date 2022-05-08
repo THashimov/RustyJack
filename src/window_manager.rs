@@ -6,7 +6,7 @@ use sdl2::{
     rect::Rect,
     render::{Canvas, TextureCreator},
     video::{Window, WindowContext},
-    EventPump, Sdl,
+    EventPump, Sdl, ttf::Font,
 };
 
 use crate::player_manager::{Players, Player};
@@ -81,9 +81,9 @@ impl WindowManager {
         self.canvas.present();
     }
 
-    pub fn render_balance_and_bet_text(&mut self, player: &mut Player) {
+    pub fn render_balance_and_bet_text(&mut self, player: &mut Player, font: &Font) {
         let text_height = self.window_size.0 / 25;
-        let y_coord = (self.window_size.1 / 3) as i32;
+        let y_coord = (self.window_size.1 / 4) as i32;
         let mut bank_balance = String::from("Ballance: ");
         bank_balance.push_str(&player.bank_balance.to_string());
         let mut bet = String::from("Bet: ");
@@ -91,8 +91,6 @@ impl WindowManager {
 
 
         let mut coords = Rect::new(10, y_coord, (bank_balance.len() * 10) as u32, text_height);
-        let ttf_context = sdl2::ttf::init().unwrap();
-        let font = ttf_context.load_font("./src/assets/fonts/Raleway-Black.ttf", 128).unwrap();
 
         let mut surface = font.render(&bank_balance).blended(Color::RGB(0, 0, 0)).unwrap();
         let mut texture = self.texture_creator.create_texture_from_surface(&surface).unwrap();
@@ -106,5 +104,37 @@ impl WindowManager {
 
         self.canvas.copy(&texture, None, Some(coords)).unwrap();
         std::thread::sleep(Duration::from_millis(30));
+    }
+
+    pub fn render_instructions(&mut self, font: &Font) {
+        let text_height = self.window_size.0 / 25;
+        let y_coord = (self.window_size.1 - (self.window_size.1 / 2)) as i32;
+        let mut text = String::from("Up Arrow - Increase Bet");
+        let mut coords = Rect::new(10, y_coord, (text.len() * 10) as u32, text_height);
+
+        let mut surface = font.render(&text).blended(Color::RGB(0, 0, 0)).unwrap();
+        let mut texture = self.texture_creator.create_texture_from_surface(&surface).unwrap();
+
+        for i in 0..7 {
+            self.canvas.copy(&texture, None, Some(coords)).unwrap();
+            std::thread::sleep(Duration::from_millis(30));
+            surface = font.render(&text).blended(Color::RGB(0, 0, 0)).unwrap();
+            texture = self.texture_creator.create_texture_from_surface(&surface).unwrap();
+            coords = Rect::new(10, y_coord + (text_height * i) as i32, (text.len() * 10) as u32, text_height);
+
+            match i {
+                0 => {text = String::from("Down Arrow - Decrease Bet")},
+                1 => {text = String::from("H - Hit")},
+                2 => {text = String::from("C - Check")},
+                3 => {text = String::from("D - Double")},
+                4 => {text = String::from("S - Split")},
+                _ => {}
+            }
+        }
+
+    }
+
+    pub fn render_updated_bank_ballance(&mut self, player: &Player) {
+        
     }
 }

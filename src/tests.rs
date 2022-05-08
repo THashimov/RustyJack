@@ -154,7 +154,7 @@ mod tests {
     #[test]
     fn get_bank_balance() {
         let mut shoe = Shoe::create_shoe();
-        let mut window = WindowManager::new_window();
+        let window = WindowManager::new_window();
         let players = Players::init_players_and_dealer(&mut shoe, &window.window_size);
 
         let bank = players.player_one.bank_balance;
@@ -162,4 +162,15 @@ mod tests {
         println!("{}", bank)
     }
 
+    #[test]
+    fn increase_bet() {
+        let mut shoe = Shoe::create_shoe();
+        let window = WindowManager::new_window();
+        let players = Players::init_players_and_dealer(&mut shoe, &window.window_size);
+        let mut player_obj = players.player_one;
+
+        player_obj.bank_balance = player_obj.bank_balance - player_obj.bet;
+    
+        assert_eq!(player_obj.bank_balance, 180)
+    }
 }
