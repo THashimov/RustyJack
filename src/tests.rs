@@ -1,8 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::card_manager::{self, Card, Shoe, Suit};
-    use crate::player_input_manager;
-    use crate::player_manager::{Players, WhoseTurn};
+    use crate::player_manager::Players;
     use crate::window_manager::WindowManager;
     extern crate rand;
 
@@ -78,7 +77,8 @@ mod tests {
             Card {
                 value: 2,
                 suit: Suit::Clubs,
-                img_src: "./src/assets/2C.png".to_string()
+                img_src: "./src/assets/2C.png".to_string(),
+                coords: (0, 0)
             }
         )
     }
@@ -145,10 +145,9 @@ mod tests {
         let mut coords = (0, 0);
 
         src = players.dealer.hand[0].img_src.clone();
-        coords = players.dealer.coords;
-        window.render_card(&src, coords);
-        players.set_player_coords();
-        window.refresh_screen();
+        coords = players.dealer.hand[0].coords;
+        window.render_cards(&mut players);
+        players.set_initial_x_coords();
     }
 
     #[test]

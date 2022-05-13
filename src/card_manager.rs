@@ -13,6 +13,7 @@ pub struct Card {
     pub value: u8,
     pub suit: Suit,
     pub img_src: String,
+    pub coords: (u32, u32),
 }
 
 #[derive(Debug)]
@@ -26,6 +27,7 @@ impl Card {
             value,
             suit,
             img_src,
+            coords: (0, 0)
         }
     }
 }
@@ -72,6 +74,7 @@ impl Shoe {
     pub fn draw_card(&mut self) -> Card {
         self.shoe.pop().unwrap()
     }
+
 }
 
 pub fn get_img_src_for_card(value: Option<u8>, suit: Option<Suit>) -> Option<String> {

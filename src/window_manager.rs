@@ -13,12 +13,39 @@ use crate::player_manager::{Players, Player};
 
 const BACKGROUND_PATH: &str = "./src/assets/table_img.png";
 
+
+pub struct BalanceAndBet {
+    pub text_height: u32,
+    pub y_coord: i32,
+    pub bank_balance_text: String,
+    pub bet_amount_text: String,
+    pub bank_balance_number: String,
+    pub bet_amount_number: String
+}
+
+impl BalanceAndBet {
+    fn new_balance_details(window_size: &(u32, u32)) -> BalanceAndBet {
+        let text_height = window_size.0 / 25;
+        let y_coord = (window_size.1 / 4) as i32;
+        
+        BalanceAndBet {
+            text_height,
+            y_coord,
+            bank_balance_text: String::from("Balance: "),
+            bet_amount_text: String::from("Bet: "),
+            bank_balance_number: String::new(),
+            bet_amount_number: String::new()
+        }
+    }
+}
+
 pub struct WindowManager {
     pub sdl_context: Sdl,
     pub canvas: Canvas<Window>,
     pub event_pump: EventPump,
     pub texture_creator: TextureCreator<WindowContext>,
     pub window_size: (u32, u32),
+    pub balance_and_bet: BalanceAndBet
 }
 
 impl WindowManager {
@@ -34,6 +61,7 @@ impl WindowManager {
             .unwrap();
 
         let window_size = window.size();
+        let balance_and_bet = BalanceAndBet::new_balance_details(&window_size);        
 
         let mut canvas = window.into_canvas().build().unwrap();
         let texture_creator = canvas.texture_creator();
@@ -47,6 +75,7 @@ impl WindowManager {
             event_pump,
             texture_creator,
             window_size,
+            balance_and_bet
         }
     }
 
@@ -54,63 +83,113 @@ impl WindowManager {
         let background_img = self.texture_creator.load_texture(BACKGROUND_PATH).unwrap();
 
         self.canvas.copy(&background_img, None, None).unwrap();
-        std::thread::sleep(Duration::from_millis(30));
     }
 
-    pub fn render_card(&mut self, src: &str, coords: (u32, u32)) {
-        let card_img = self.texture_creator.load_texture(src).unwrap();
-        let coords = Rect::new(coords.0 as i32, coords.1 as i32, 80, 110);
-
-        self.canvas.copy(&card_img, None, Some(coords)).unwrap();
-        std::thread::sleep(Duration::from_millis(30));
-
+    pub fn render_cards(&mut self, players: &Players) {
+        self.render_dealer_cards(&players.dealer);
+        self.render_player_cards(&players.player_one);
+        self.render_player_cards(&players.player_two);
+        self.render_player_cards(&players.player_three);
+        self.render_player_cards(&players.player_four);
     }
 
-    pub fn render_initial_cards(&mut self, players: &mut Players) {
-        let src = players.dealer.hand[0].img_src.clone();
-        let coords = players.dealer.coords;
+    fn render_player_cards(&mut self, player: &Player) {
+        for i in 0..player.hand.len() {
+            let coords = player.hand[i].coords;
+            let card_img = self.texture_creator.load_texture(player.hand[i].img_src.clone()).unwrap();
+            let coords = Rect::new(coords.0 as i32, coords.1 as i32, 80, 110);
 
-        self.render_card(&src, coords);
-        std::thread::sleep(Duration::from_millis(30));
-
-        players.set_player_coords();
-        players.render_initial_hand(self);
+            self.canvas.copy(&card_img, None, Some(coords)).unwrap();
+        }
     }
 
-    pub fn refresh_screen(&mut self) {
-        self.canvas.present();
+    fn render_dealer_cards(&mut self, dealer: &Player) {
+        for i in 0..dealer.hand.len() {
+            let coords = dealer.hand[i].coords;
+            let card_img = self.texture_creator.load_texture(dealer.hand[i].img_src.clone()).unwrap();
+            let coords = Rect::new(coords.0 as i32, coords.1 as i32, 80, 110);
+
+            self.canvas.copy(&card_img, None, Some(coords)).unwrap();
+        }       
     }
 
-    pub fn render_balance_and_bet_text(&mut self, player: &mut Player, font: &Font) {
-        let text_height = self.window_size.0 / 25;
-        let y_coord = (self.window_size.1 / 4) as i32;
-        let mut bank_balance = String::from("Ballance: ");
-        bank_balance.push_str(&player.bank_balance.to_string());
-        let mut bet = String::from("Bet: ");
-        bet.push_str(&player.bet.to_string());
+    pub fn render_balance_and_bet_text(&mut self, font: &Font) {
+        let bank_balance_coords = Rect::new(
+            10,
+            self.balance_and_bet.y_coord,
+            (self.balance_and_bet.bank_balance_text.len() * 10) as u32, 
+            self.balance_and_bet.text_height);
+
+        let surface = font.render(
+            &self.balance_and_bet.bank_balance_text)
+            .blended(Color::RGB(0, 0, 0)).unwrap();
 
 
-        let mut coords = Rect::new(10, y_coord, (bank_balance.len() * 10) as u32, text_height);
+        let texture = self.texture_creator.create_texture_from_surface(&surface).unwrap();
 
-        let mut surface = font.render(&bank_balance).blended(Color::RGB(0, 0, 0)).unwrap();
-        let mut texture = self.texture_creator.create_texture_from_surface(&surface).unwrap();
+        self.canvas.copy(&texture, None, Some(bank_balance_coords)).unwrap();
+
+        let bet_coords = Rect::new(
+            10,
+            self.balance_and_bet.y_coord + self.balance_and_bet.text_height as i32,
+            (self.balance_and_bet.bet_amount_text.len() * 10) as u32, 
+            self.balance_and_bet.text_height);
+
+        let surface = font.render(
+            &self.balance_and_bet.bet_amount_text)
+            .blended(Color::RGB(0, 0, 0)).unwrap();
+
+        let texture = self.texture_creator.create_texture_from_surface(&surface).unwrap();
+
+        self.canvas.copy(&texture, None, Some(bet_coords)).unwrap();
+    }
+
+    pub fn render_updated_bank_ballance(&mut self, player: &Player, font: &Font) {
+        let bank_balance = player.bank_balance.to_string();
+
+        let coords = Rect::new(
+            10 + (self.balance_and_bet.bank_balance_text.len() * 10) as i32,
+            self.balance_and_bet.y_coord,
+            (self.balance_and_bet.bank_balance_text.len() * 10) as u32, 
+            self.balance_and_bet.text_height);
+
+        let surface = font.render(
+            &bank_balance)
+            .blended(Color::RGB(0, 0, 0)).unwrap();
+
+
+        let texture = self.texture_creator.create_texture_from_surface(&surface).unwrap();
 
         self.canvas.copy(&texture, None, Some(coords)).unwrap();
-        std::thread::sleep(Duration::from_millis(30));
+    }
 
-        coords = Rect::new(10, y_coord + text_height as i32, (bet.len() * 10) as u32, text_height);
-        surface = font.render(&bet).blended(Color::RGB(0, 0, 0)).unwrap();
-        texture = self.texture_creator.create_texture_from_surface(&surface).unwrap();
+    pub fn render_updated_bet(&mut self, player: &Player, font: &Font) {
+        let bet_amount = player.bet.to_string();
 
-        self.canvas.copy(&texture, None, Some(coords)).unwrap();
-        std::thread::sleep(Duration::from_millis(30));
+        let coords = Rect::new(
+            10 + (self.balance_and_bet.bet_amount_text.len() * 10) as i32,
+            self.balance_and_bet.y_coord + self.balance_and_bet.text_height as i32,
+            (self.balance_and_bet.bet_amount_text.len() * 10) as u32, 
+            self.balance_and_bet.text_height);
+
+        let surface = font.render(
+            &bet_amount)
+            .blended(Color::RGB(0, 0, 0)).unwrap();
+
+
+        let texture = self.texture_creator.create_texture_from_surface(&surface).unwrap();
+
+        self.canvas.copy(&texture, None, Some(coords)).unwrap();   
     }
 
     pub fn render_instructions(&mut self, font: &Font) {
-        let text_height = self.window_size.0 / 25;
         let y_coord = (self.window_size.1 - (self.window_size.1 / 2)) as i32;
         let mut text = String::from("Up Arrow - Increase Bet");
-        let mut coords = Rect::new(10, y_coord, (text.len() * 10) as u32, text_height);
+        let mut coords = Rect::new(
+            10,
+            y_coord,
+            (text.len() * 10) as u32, 
+            self.balance_and_bet.text_height);
 
         let mut surface = font.render(&text).blended(Color::RGB(0, 0, 0)).unwrap();
         let mut texture = self.texture_creator.create_texture_from_surface(&surface).unwrap();
@@ -120,7 +199,7 @@ impl WindowManager {
             std::thread::sleep(Duration::from_millis(30));
             surface = font.render(&text).blended(Color::RGB(0, 0, 0)).unwrap();
             texture = self.texture_creator.create_texture_from_surface(&surface).unwrap();
-            coords = Rect::new(10, y_coord + (text_height * i) as i32, (text.len() * 10) as u32, text_height);
+            coords = Rect::new(10, y_coord + (self.balance_and_bet.text_height * i) as i32, (text.len() * 10) as u32, self.balance_and_bet.text_height);
 
             match i {
                 0 => {text = String::from("Down Arrow - Decrease Bet")},
@@ -134,7 +213,14 @@ impl WindowManager {
 
     }
 
-    pub fn render_updated_bank_ballance(&mut self, player: &Player) {
-        
+    pub fn refresh_screen(&mut self, players: &Players, font: &Font) {
+        self.canvas.clear();
+        self.load_background();
+        self.render_cards(players);
+        self.render_balance_and_bet_text(font);
+        self.render_updated_bank_ballance(&players.player_one, &font);
+        self.render_updated_bet(&players.player_one, &font);
+        self.render_instructions(font);
+        self.canvas.present();
     }
 }
