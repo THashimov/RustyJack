@@ -15,21 +15,19 @@ pub struct Player {
     pub bank_balance: u32,
     pub hand: Vec<Card>,
     pub window_size: (u32, u32),
+    pub can_change_bet: bool,
+    pub is_bust: bool,
+    pub has_won: bool,
 }
 
 impl Players {
     pub fn init_players_and_dealer(shoe: &mut Shoe, window_size: &(u32, u32)) -> Players {
         Players {
-            dealer: 
-            Player::init_player(shoe.draw_card(), &window_size),
-            player_one: 
-            Player::init_player(shoe.draw_card(), &window_size),
-            player_two: 
-            Player::init_player(shoe.draw_card(), &window_size),
-            player_three: 
-            Player::init_player(shoe.draw_card(), &window_size),
-            player_four: 
-            Player::init_player(shoe.draw_card(), &window_size),
+            dealer: Player::init_player(shoe.draw_card(), &window_size),
+            player_one: Player::init_player(shoe.draw_card(), &window_size),
+            player_two: Player::init_player(shoe.draw_card(), &window_size),
+            player_three: Player::init_player(shoe.draw_card(), &window_size),
+            player_four: Player::init_player(shoe.draw_card(), &window_size),
         }
     }
 
@@ -46,8 +44,10 @@ impl Players {
         self.dealer.hand[0].coords.0 = (self.player_one.window_size.0 / 2) - 40;
         self.player_one.hand[0].coords.0 = start_point;
         self.player_two.hand[0].coords.0 = self.player_one.hand[0].coords.0 + space_between_players;
-        self.player_three.hand[0].coords.0 = self.player_two.hand[0].coords.0 + space_between_players;
-        self.player_four.hand[0].coords.0 = self.player_three.hand[0].coords.0 + space_between_players;
+        self.player_three.hand[0].coords.0 =
+            self.player_two.hand[0].coords.0 + space_between_players;
+        self.player_four.hand[0].coords.0 =
+            self.player_three.hand[0].coords.0 + space_between_players;
 
         self.player_one.hand[1].coords.0 = self.player_one.hand[0].coords.0 + 20;
         self.player_two.hand[1].coords.0 = self.player_two.hand[0].coords.0 + 20;
@@ -70,6 +70,12 @@ impl Players {
         self.player_three.hand[1].coords.1 = player_y_coord - 20;
         self.player_four.hand[1].coords.1 = player_y_coord - 20;
     }
+
+    pub fn deal_cards(&mut self, shoe: &mut Shoe, window_size: &(u32, u32)) {
+        self.draw_second_card_for_every_player(shoe);
+        self.set_initial_x_coords();
+        self.set_initial_y_coords(&window_size);
+    }
 }
 
 impl Player {
@@ -80,6 +86,9 @@ impl Player {
             bank_balance: 200,
             hand,
             window_size: *window_size,
+            can_change_bet: true,
+            is_bust: false,
+            has_won: false,
         }
     }
 }

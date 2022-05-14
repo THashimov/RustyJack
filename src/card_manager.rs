@@ -27,7 +27,7 @@ impl Card {
             value,
             suit,
             img_src,
-            coords: (0, 0)
+            coords: (0, 0),
         }
     }
 }
@@ -66,6 +66,15 @@ impl Shoe {
                 }
             }
         }
+
+        for i in 0..deck.len() {
+            if deck[i].value > 10 && deck[i].value < 14 {
+                deck[i].value = 10
+            } else if deck[i].value == 14 {
+                deck[i].value = 11
+            }
+        }
+
         shuffle_cards(&mut deck);
 
         Shoe { shoe: deck }
@@ -74,7 +83,6 @@ impl Shoe {
     pub fn draw_card(&mut self) -> Card {
         self.shoe.pop().unwrap()
     }
-
 }
 
 pub fn get_img_src_for_card(value: Option<u8>, suit: Option<Suit>) -> Option<String> {

@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::card_manager::{self, Card, Shoe, Suit};
+    use crate::game_logic;
     use crate::player_manager::Players;
     use crate::window_manager::WindowManager;
     extern crate rand;
@@ -141,11 +142,6 @@ mod tests {
 
         players.draw_second_card_for_every_player(&mut shoe);
 
-        let mut src = String::new();
-        let mut coords = (0, 0);
-
-        src = players.dealer.hand[0].img_src.clone();
-        coords = players.dealer.hand[0].coords;
         window.render_cards(&mut players);
         players.set_initial_x_coords();
     }
@@ -169,7 +165,122 @@ mod tests {
         let mut player_obj = players.player_one;
 
         player_obj.bank_balance = player_obj.bank_balance - player_obj.bet;
-    
+
         assert_eq!(player_obj.bank_balance, 180)
     }
+
+    #[test]
+    fn assign_card_values() {
+        let mut shoe = Shoe::create_shoe();
+        for i in 0..shoe.shoe.len() {
+            if shoe.shoe[i].value > 10 && shoe.shoe[i].value < 14 {
+                shoe.shoe[i].value = 10
+            } else if shoe.shoe[i].value == 14 {
+                shoe.shoe[i].value = 11
+            }
+        }
+
+        assert_eq!(shoe.shoe[7].value, 9);
+        assert_eq!(shoe.shoe[10].value, 10);
+        assert_eq!(shoe.shoe[11].value, 10);
+        assert_eq!(shoe.shoe[12].value, 11);
+    }
+
+    #[test]
+    fn check_for_bust() {
+        let mut shoe = Shoe::create_shoe();
+        let players = Players::init_players_and_dealer(&mut shoe, &(0, 0));
+        let mut player_one = players.player_one;
+
+        player_one.hand.push(shoe.draw_card());
+        player_one.hand.push(shoe.draw_card());
+
+        let mut hand_val = 0;
+
+        for i in 0..player_one.hand.len() {
+            hand_val += player_one.hand[i].value
+        }
+
+        if hand_val > 21 {
+            player_one.is_bust = true
+        }
+
+        println!("{:?}", player_one.hand);
+        println!("{:?}", hand_val);
+        println!("{:?}", player_one.is_bust);
+    }
+
+    #[test]
+    fn deal_again() {
+        let mut shoe = Shoe::create_shoe();
+        let mut players = Players::init_players_and_dealer(&mut shoe, &(0, 0));
+        players.player_one.hand.push(shoe.draw_card());
+        players.player_one.hand.push(shoe.draw_card());
+        println!("{:?}", players.player_one.hand);
+
+        players.dealer.hand.drain(..);
+        players.player_one.hand.drain(..);
+        players.player_two.hand.drain(..);
+        players.player_three.hand.drain(..);
+        players.player_four.hand.drain(..);
+
+        players.dealer.hand.push(shoe.draw_card());
+
+        players.player_one.hand.push(shoe.draw_card());
+        players.player_two.hand.push(shoe.draw_card());
+        players.player_three.hand.push(shoe.draw_card());
+        players.player_four.hand.push(shoe.draw_card());
+
+        players.player_one.has_won = false;
+        players.player_one.is_bust = false;
+        players.player_one.can_change_bet = true;
+
+
+        println!("{:?}", players.player_one.hand);
+    }
+
+    #[test]
+    fn change_aces() {
+        let mut shoe = Shoe::create_shoe();
+        let players = Players::init_players_and_dealer(&mut shoe, &(0, 0));
+        let mut player = players.player_one;
+
+        let card = Card::create_card(11, Suit::Diamonds, "./src/assets/AC.png".to_string());
+
+        player.hand.push(card);
+        player.hand.push(shoe.draw_card());
+
+        let card = Card::create_card(11, Suit::Diamonds, "./src/assets/AD.png".to_string());
+
+        player.hand.push(card);
+
+        let card = Card::create_card(11, Suit::Diamonds, "./src/assets/AD.png".to_string());
+
+        player.hand.push(card);
+
+
+        let mut hand_val = game_logic::get_hand_value(&player.hand);
+        let has_ace = game_logic::check_for_ace(&player.hand);
+
+        // if hand > 21 Iter over hand and look for aces
+    
+        if hand_val > 21 && has_ace {
+            'change_ace: loop {
+            for i in 0..player.hand.len() {
+                if player.hand[i].value == 11 {
+                    player.hand[i].value = 1;
+                    hand_val = game_logic::get_hand_value(&player.hand);
+                        if hand_val < 21 {
+                            break 'change_ace
+                        }
+                }
+            }
+        }
+        }
+
+        println!("{:?}", player.hand);
+        println!("hand {}", hand_val);
+
+    }
+
 }
