@@ -32,15 +32,27 @@ pub fn check_for_key_press(
                 ..
             } => {
                 players.player_one.can_change_bet = false;
-                game_logic::hit(&mut players.player_one, shoe)
-            },
+                game_logic::hit(&mut players.player_one, shoe);
+            }
             Event::KeyUp {
                 keycode: Some(Keycode::C),
                 ..
             } => {
                 game_logic::stand(&mut players.dealer, shoe);
-                players.player_one.has_checked = true
-            },
+                players.player_one.has_checked = true;
+                game_logic::check_for_winner(players);
+            }
+            Event::KeyUp {
+                keycode: Some(Keycode::D),
+                ..
+            } => {
+                game_logic::double(&mut players.player_one);
+                game_logic::hit(&mut players.player_one, shoe);
+                players.player_one.can_change_bet = false;
+                players.player_one.has_checked = true;
+                game_logic::stand(&mut players.dealer, shoe);
+                game_logic::check_for_winner(players);
+            }
             Event::KeyUp {
                 keycode: Some(Keycode::R),
                 ..

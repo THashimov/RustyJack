@@ -235,7 +235,6 @@ mod tests {
         players.player_one.is_bust = false;
         players.player_one.can_change_bet = true;
 
-
         println!("{:?}", players.player_one.hand);
     }
 
@@ -258,29 +257,27 @@ mod tests {
 
         player.hand.push(card);
 
-
         let mut hand_val = game_logic::get_hand_value(&player.hand);
         let has_ace = game_logic::check_for_ace(&player.hand);
 
         // if hand > 21 Iter over hand and look for aces
-    
+
         if hand_val > 21 && has_ace {
             'change_ace: loop {
-            for i in 0..player.hand.len() {
-                if player.hand[i].value == 11 {
-                    player.hand[i].value = 1;
-                    hand_val = game_logic::get_hand_value(&player.hand);
+                for i in 0..player.hand.len() {
+                    if player.hand[i].value == 11 {
+                        player.hand[i].value = 1;
+                        hand_val = game_logic::get_hand_value(&player.hand);
                         if hand_val < 21 {
-                            break 'change_ace
+                            break 'change_ace;
                         }
+                    }
                 }
             }
-        }
         }
 
         println!("{:?}", player.hand);
         println!("hand {}", hand_val);
-
     }
 
     #[test]
@@ -294,18 +291,17 @@ mod tests {
         while game_logic::get_hand_value(&player.hand) < 17 {
             let mut card = shoe.draw_card();
             let index = player.hand.len();
-    
+
             let mut coords = player.hand[index - 1].coords;
             coords.0 -= 20;
             coords.1 += 20;
             card.coords = coords;
             player.hand.push(card);
             game_logic::change_aces(&mut player);
-            
+
             println!("{:?}", player.hand)
         }
     }
-
 
     #[test]
     fn check_for_winner() {
@@ -318,11 +314,16 @@ mod tests {
 
         dealer.hand[0].value = 10;
         dealer.hand[1].value = 9;
-        
+
         player.hand[0].value = 10;
         player.hand[1].value = 8;
 
-        
+        if game_logic::get_hand_value(&player.hand) > game_logic::get_hand_value(&dealer.hand) {
+            player.has_won = true
+        } else {
+            dealer.has_won = true
+        }
 
+        assert_eq!(dealer.has_won, true)
     }
 }

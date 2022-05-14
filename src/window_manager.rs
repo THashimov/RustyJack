@@ -207,7 +207,8 @@ impl WindowManager {
     }
 
     pub fn render_instructions(&mut self, font: &Font) {
-        let y_coord = self.balance_and_bet.y_coord + ((self.balance_and_bet.text_height * 2) + 20) as i32;
+        let y_coord =
+            self.balance_and_bet.y_coord + ((self.balance_and_bet.text_height * 2) + 20) as i32;
         let mut text = String::from("Up Arrow - Increase Bet");
         let mut coords = Rect::new(
             10,
@@ -251,26 +252,30 @@ impl WindowManager {
         }
     }
 
-    pub fn render_bust_or_win_text(&mut self, player: &Player, font: &Font) {
-        let mut win_or_lose_message = String::from(" ");
+    pub fn render_bust_or_win_text(&mut self, players: &Players, font: &Font) {
+        let mut text = String::from(" ");
 
-        if player.is_bust {
-            win_or_lose_message = String::from("You went bust!")
-        } else if player.has_won {
-            win_or_lose_message = String::from("You win!")
-        } else if player.has_blackjack {
-            win_or_lose_message = String::from("Blackjack!")
+        if players.player_one.is_bust {
+            text = String::from("You went bust!")
+        } else if players.player_one.has_won {
+            text = String::from("You win!")
+        } else if players.player_one.has_blackjack {
+            text = String::from("Blackjack!")
+        } else if players.dealer.has_won {
+            text = String::from("Dealer wins!")
+        } else if players.dealer.has_won && players.player_one.has_won {
+            text = String::from("Push")
         }
 
         let text_coords = Rect::new(
-            ((self.window_size.0 / 2) - ((win_or_lose_message.len() * 10) as u32 / 2)) as i32,
+            ((self.window_size.0 / 2) - ((text.len() * 10) as u32 / 2)) as i32,
             (self.window_size.1 / 2) as i32,
-            (win_or_lose_message.len() * 10) as u32,
+            (text.len() * 10) as u32,
             self.balance_and_bet.text_height,
         );
 
         let surface = font
-            .render(&win_or_lose_message)
+            .render(&text)
             .blended(self.balance_and_bet.text_col)
             .unwrap();
 
@@ -290,7 +295,7 @@ impl WindowManager {
         self.render_updated_bank_ballance(&players.player_one, &font);
         self.render_updated_bet(&players.player_one, &font);
         self.render_instructions(font);
-        self.render_bust_or_win_text(&players.player_one, &font);
+        self.render_bust_or_win_text(&players, &font);
         self.canvas.present();
     }
 }

@@ -28,13 +28,20 @@ fn main() {
             &mut shoe,
         ) {
             QuitOrDeal::Quit => break 'running,
-            QuitOrDeal::DealAgain => game_logic::deal_again(&mut players, &mut shoe, &window.window_size),
+            QuitOrDeal::DealAgain => {
+                game_logic::deal_again(&mut players, &mut shoe, &window.window_size)
+            }
             QuitOrDeal::KeepPlaying => {}
         }
 
         window.refresh_screen(&mut players, &font);
-        game_logic::check_hand(&mut players.player_one);
-        
+        game_logic::check_player_hand(&mut players.player_one);
+
+        if players.player_one.has_checked {
+            game_logic::stand(&mut players.dealer, &mut shoe);
+            game_logic::check_for_winner(&mut players);
+        };
+
         if shoe.shoe.len() < 50 {
             shoe = Shoe::create_shoe()
         }
