@@ -16,6 +16,7 @@ pub struct Player {
     pub hand: Vec<Card>,
     pub window_size: (u32, u32),
     pub can_change_bet: bool,
+    pub has_checked: bool,
     pub is_bust: bool,
     pub has_won: bool,
     pub has_blackjack: bool
@@ -88,6 +89,7 @@ impl Player {
             hand,
             window_size: *window_size,
             can_change_bet: true,
+            has_checked: false,
             is_bust: false,
             has_won: false,
             has_blackjack: false

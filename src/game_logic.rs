@@ -15,7 +15,7 @@ pub fn decrease_bet(player: &mut Player) {
 }
 
 pub fn hit(player: &mut Player, shoe: &mut Shoe) {
-    if !player.is_bust && get_hand_value(&player.hand) != 21 {
+    if !player.is_bust && get_hand_value(&player.hand) != 21 && !player.has_checked {
         let mut card = shoe.draw_card();
         let index = player.hand.len();
 
@@ -39,7 +39,7 @@ pub fn check_hand(player: &mut Player) {
     }
 }
 
-fn change_aces(player: &mut Player) {
+pub fn change_aces(player: &mut Player) {
     let has_ace = check_for_ace(&player.hand);
     let mut hand_val = get_hand_value(&player.hand);
 
@@ -97,4 +97,18 @@ pub fn deal_again(players: &mut Players, shoe: &mut Shoe, window_size: &(u32, u3
     players.player_one.has_blackjack = false;
 
     players.deal_cards(shoe, &window_size);
+}
+
+pub fn stand(player: &mut Player, shoe: &mut Shoe) {
+    while get_hand_value(&player.hand) < 17 {
+        let mut card = shoe.draw_card();
+        let index = player.hand.len();
+
+        let mut coords = player.hand[index - 1].coords;
+        coords.0 -= 20;
+        coords.1 += 20;
+        card.coords = coords;
+        player.hand.push(card);
+        change_aces(player);
+    }
 }

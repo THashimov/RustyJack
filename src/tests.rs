@@ -283,4 +283,46 @@ mod tests {
 
     }
 
+    #[test]
+    fn stand() {
+        let mut shoe = Shoe::create_shoe();
+        let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
+        players.deal_cards(&mut shoe, &(1000, 1000));
+        let mut player = players.dealer;
+        // dealer must draw to 16 and stand on 17
+
+        while game_logic::get_hand_value(&player.hand) < 17 {
+            let mut card = shoe.draw_card();
+            let index = player.hand.len();
+    
+            let mut coords = player.hand[index - 1].coords;
+            coords.0 -= 20;
+            coords.1 += 20;
+            card.coords = coords;
+            player.hand.push(card);
+            game_logic::change_aces(&mut player);
+            
+            println!("{:?}", player.hand)
+        }
+    }
+
+
+    #[test]
+    fn check_for_winner() {
+        let mut shoe = Shoe::create_shoe();
+        let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
+        players.deal_cards(&mut shoe, &(1000, 1000));
+        let mut dealer = players.dealer;
+        let mut player = players.player_one;
+        dealer.hand.push(shoe.draw_card());
+
+        dealer.hand[0].value = 10;
+        dealer.hand[1].value = 9;
+        
+        player.hand[0].value = 10;
+        player.hand[1].value = 8;
+
+        
+
+    }
 }

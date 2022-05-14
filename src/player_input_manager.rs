@@ -33,7 +33,14 @@ pub fn check_for_key_press(
             } => {
                 players.player_one.can_change_bet = false;
                 game_logic::hit(&mut players.player_one, shoe)
-            }
+            },
+            Event::KeyUp {
+                keycode: Some(Keycode::C),
+                ..
+            } => {
+                game_logic::stand(&mut players.dealer, shoe);
+                players.player_one.has_checked = true
+            },
             Event::KeyUp {
                 keycode: Some(Keycode::R),
                 ..
@@ -41,6 +48,8 @@ pub fn check_for_key_press(
                 if players.player_one.has_won
                     || players.player_one.is_bust
                     || players.dealer.has_won
+                    || players.player_one.has_checked
+                    || players.player_one.has_blackjack
                 {
                     return QuitOrDeal::DealAgain;
                 }
