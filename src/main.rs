@@ -33,6 +33,8 @@ fn main() {
         }
 
         window.refresh_screen(&mut players, &font);
+        game_logic::check_hand(&mut players.player_one);
+        
         if shoe.shoe.len() < 50 {
             shoe = Shoe::create_shoe()
         }

@@ -24,9 +24,9 @@ pub struct BalanceAndBet {
 
 impl BalanceAndBet {
     fn new_balance_details(window_size: &(u32, u32)) -> BalanceAndBet {
-        let text_height = window_size.0 / 25;
+        let text_height = window_size.0 / 35;
         let y_coord = (window_size.1 / 4) as i32;
-        let text_col = Color::RGB(150, 150, 100);
+        let text_col = Color::RGB(0, 0, 0);
         BalanceAndBet {
             text_height,
             y_coord,
@@ -207,7 +207,7 @@ impl WindowManager {
     }
 
     pub fn render_instructions(&mut self, font: &Font) {
-        let y_coord = (self.window_size.1 - (self.window_size.1 / 2)) as i32;
+        let y_coord = self.balance_and_bet.y_coord + ((self.balance_and_bet.text_height * 2) + 20) as i32;
         let mut text = String::from("Up Arrow - Increase Bet");
         let mut coords = Rect::new(
             10,
@@ -256,8 +256,10 @@ impl WindowManager {
 
         if player.is_bust {
             win_or_lose_message = String::from("You went bust!")
-        } else if !player.is_bust && player.has_won {
+        } else if player.has_won {
             win_or_lose_message = String::from("You win!")
+        } else if player.has_blackjack {
+            win_or_lose_message = String::from("Blackjack!")
         }
 
         let text_coords = Rect::new(

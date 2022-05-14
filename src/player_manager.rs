@@ -18,6 +18,7 @@ pub struct Player {
     pub can_change_bet: bool,
     pub is_bust: bool,
     pub has_won: bool,
+    pub has_blackjack: bool
 }
 
 impl Players {
@@ -89,6 +90,7 @@ impl Player {
             can_change_bet: true,
             is_bust: false,
             has_won: false,
+            has_blackjack: false
         }
     }
 }
