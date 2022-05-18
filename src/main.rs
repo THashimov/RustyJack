@@ -34,10 +34,10 @@ fn main() {
             QuitOrDeal::KeepPlaying => {}
         }
 
-        window.refresh_screen(&mut players, &font);
         game_logic::check_player_hand(&mut players.player_one);
 
-        if players.player_one.has_checked {
+
+        if players.player_one.has_checked && !players.dealer.has_finished_dealing {
             game_logic::stand(&mut players.dealer, &mut shoe);
             game_logic::check_for_winner(&mut players);
         };
@@ -45,5 +45,6 @@ fn main() {
         if shoe.shoe.len() < 50 {
             shoe = Shoe::create_shoe()
         }
+        window.refresh_screen(&mut players, &font);
     }
 }

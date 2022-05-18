@@ -44,12 +44,12 @@ pub fn check_for_key_press(
             }
             Event::KeyUp {
                 keycode: Some(Keycode::D),
-                ..
+                ..  
             } => {
                 game_logic::double(&mut players.player_one);
-                game_logic::hit(&mut players.player_one, shoe);
                 players.player_one.can_change_bet = false;
                 players.player_one.has_checked = true;
+                game_logic::hit(&mut players.player_one, shoe);
                 game_logic::stand(&mut players.dealer, shoe);
                 game_logic::check_for_winner(players);
             }

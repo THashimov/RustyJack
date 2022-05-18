@@ -32,8 +32,7 @@ pub fn hit(player: &mut Player, shoe: &mut Shoe) {
 
 pub fn double(player: &mut Player) {
     if !player.has_checked {
-        player.bank_balance -= player.bet;
-        player.bet *= 2
+            player.bet *= 2
     }
 }
 
@@ -44,7 +43,7 @@ pub fn check_player_hand(player: &mut Player) {
         player.bank_balance -= player.bet;
     } else if get_hand_value(&player.hand) == 21 && player.hand.len() <= 2 {
         player.has_blackjack = true;
-        player.bank_balance += player.bet * 2
+        player.has_won = true;
     } else if get_hand_value(&player.hand) == 21 && !player.is_bust {
         player.has_checked = true;
     }
@@ -110,6 +109,7 @@ pub fn deal_again(players: &mut Players, shoe: &mut Shoe, window_size: &(u32, u3
 
     players.dealer.has_won = false;
     players.dealer.is_bust = false;
+    players.dealer.has_finished_dealing = false;
 
     players.deal_cards(shoe, &window_size);
 }
@@ -126,6 +126,8 @@ pub fn stand(player: &mut Player, shoe: &mut Shoe) {
         player.hand.push(card);
         change_aces(player);
     }
+
+    player.has_finished_dealing = true;
 
     if get_hand_value(&player.hand) > 21 {
         player.is_bust = true;
@@ -147,5 +149,17 @@ pub fn check_for_winner(players: &mut Players) {
     {
         players.player_one.has_won = true;
         players.dealer.has_won = true;
+    }
+
+    update_player_winnings(players);
+}
+
+pub fn update_player_winnings(players: &mut Players) {
+    if players.player_one.has_won {
+        players.player_one.bank_balance += players.player_one.bet
+    } else if players.dealer.has_won {
+        players.player_one.bank_balance -= players.player_one.bet
+    } else if players.player_one.has_won && players.player_one.has_blackjack {
+        players.player_one.bank_balance += players.player_one.bet * 2
     }
 }

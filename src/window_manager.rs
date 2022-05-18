@@ -8,7 +8,7 @@ use sdl2::{
     EventPump, Sdl,
 };
 
-use crate::player_manager::{Player, Players};
+use crate::{player_manager::{Player, Players}, game_logic};
 
 const BACKGROUND_PATH: &str = "./src/assets/table_img.png";
 
@@ -257,9 +257,9 @@ impl WindowManager {
 
         if players.player_one.is_bust {
             text = String::from("You went bust!")
-        } else if players.player_one.has_won {
+        } else if players.player_one.has_won && !players.player_one.has_blackjack {
             text = String::from("You win!")
-        } else if players.player_one.has_blackjack {
+        } else if players.player_one.has_blackjack && players.player_one.has_won {
             text = String::from("Blackjack!")
         } else if players.dealer.has_won {
             text = String::from("Dealer wins!")
@@ -287,6 +287,31 @@ impl WindowManager {
         self.canvas.copy(&texture, None, Some(text_coords)).unwrap();
     }
 
+    pub fn render_player_hand_value(&mut self, player: &Player, font: &Font) {
+        let hand_val = game_logic::get_hand_value(&player.hand);
+        let mut hand_val_string = String::from("Hand value: ");
+        hand_val_string.push_str(&hand_val.to_string());
+
+        let coords = Rect::new(
+            (self.window_size.0 - hand_val_string.len() as u32 * 20) as i32,
+            self.balance_and_bet.y_coord,
+            (hand_val_string.len() * 10) as u32,
+            self.balance_and_bet.text_height,
+        );
+
+        let surface = font
+            .render(&hand_val_string)
+            .blended(self.balance_and_bet.text_col)
+            .unwrap();
+
+        let texture = self
+            .texture_creator
+            .create_texture_from_surface(&surface)
+            .unwrap();
+
+        self.canvas.copy(&texture, None, Some(coords)).unwrap();
+    }
+
     pub fn refresh_screen(&mut self, players: &Players, font: &Font) {
         self.canvas.clear();
         self.load_background();
@@ -296,6 +321,7 @@ impl WindowManager {
         self.render_updated_bet(&players.player_one, &font);
         self.render_instructions(font);
         self.render_bust_or_win_text(&players, &font);
+        self.render_player_hand_value(&players.player_one, font);
         self.canvas.present();
     }
 }
