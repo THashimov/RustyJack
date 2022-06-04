@@ -17,6 +17,7 @@ fn main() {
         .load_font("./src/assets/fonts/Raleway-Black.ttf", 128)
         .unwrap();
 
+        
     let mut shoe = Shoe::create_shoe();
     let mut players = Players::init_players_and_dealer(&mut shoe, &window.window_size);
     players.deal_cards(&mut shoe, &window.window_size);
