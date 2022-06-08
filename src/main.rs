@@ -17,7 +17,6 @@ fn main() {
         .load_font("./src/assets/fonts/Raleway-Black.ttf", 128)
         .unwrap();
 
-        
     let mut shoe = Shoe::create_shoe();
     let mut players = Players::init_players_and_dealer(&mut shoe, &window.window_size);
     players.deal_cards(&mut shoe, &window.window_size);
@@ -35,8 +34,7 @@ fn main() {
             QuitOrDeal::KeepPlaying => {}
         }
 
-        game_logic::check_player_hand(&mut players.player_one);
-
+        game_logic::check_for_blackjack_and_bust(&mut players.player_one);
 
         if players.player_one.has_checked && !players.dealer.has_finished_dealing {
             game_logic::stand(&mut players.dealer, &mut shoe);

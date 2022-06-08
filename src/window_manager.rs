@@ -8,7 +8,10 @@ use sdl2::{
     EventPump, Sdl,
 };
 
-use crate::{player_manager::{Player, Players}, game_logic};
+use crate::{
+    game_logic,
+    player_manager::{Player, Players},
+};
 
 const BACKGROUND_PATH: &str = "./src/assets/table_img.png";
 

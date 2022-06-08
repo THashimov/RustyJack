@@ -20,7 +20,7 @@ pub struct Player {
     pub is_bust: bool,
     pub has_won: bool,
     pub has_blackjack: bool,
-    pub has_finished_dealing: bool
+    pub has_finished_dealing: bool,
 }
 
 impl Players {
@@ -94,7 +94,7 @@ impl Player {
             is_bust: false,
             has_won: false,
             has_blackjack: false,
-            has_finished_dealing: false
+            has_finished_dealing: false,
         }
     }
 }
