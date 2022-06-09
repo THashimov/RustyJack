@@ -46,7 +46,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://github.com/MightyGiant21/RustyJack/tree/main/src/assets/screenshot.jpg)
+![product-screenshot](./src/assets/screenshot.jpg)
 
 I wanted to tackle a project which could have many features as a way of learning rust and how to develop desktop applications. Although it's a simple game there are a few avenues it can go down to add complexety and learn some new things such as networking and AI.
 
