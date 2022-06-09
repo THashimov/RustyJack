@@ -71,7 +71,7 @@ impl Shoe {
             if deck[i].value > 10 && deck[i].value < 14 {
                 deck[i].value = 10
             } else if deck[i].value == 14 {
-                deck[i].value = 11
+                deck[i].value = 11;
             }
         }
 

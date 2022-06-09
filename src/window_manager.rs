@@ -89,10 +89,10 @@ impl WindowManager {
 
     pub fn render_cards(&mut self, players: &Players) {
         self.render_dealer_cards(&players.dealer);
-        self.render_player_cards(&players.player_one);
-        self.render_player_cards(&players.player_two);
-        self.render_player_cards(&players.player_three);
-        self.render_player_cards(&players.player_four);
+
+        for i in 0..4 {
+            self.render_player_cards(&players.players[i]);
+        }
     }
 
     fn render_player_cards(&mut self, player: &Player) {
@@ -257,16 +257,16 @@ impl WindowManager {
 
     pub fn render_bust_or_win_text(&mut self, players: &Players, font: &Font) {
         let mut text = String::from(" ");
-
-        if players.player_one.is_bust {
+        let player = &players.players[0];
+        if player.is_bust {
             text = String::from("You went bust!")
-        } else if players.player_one.has_won && !players.player_one.has_blackjack {
+        } else if player.has_won && !player.has_blackjack {
             text = String::from("You win!")
-        } else if players.player_one.has_blackjack && players.player_one.has_won {
+        } else if player.has_blackjack && player.has_won {
             text = String::from("Blackjack!")
         } else if players.dealer.has_won {
             text = String::from("Dealer wins!")
-        } else if players.dealer.has_won && players.player_one.has_won {
+        } else if players.dealer.has_won && player.has_won {
             text = String::from("Push")
         }
 
@@ -320,11 +320,11 @@ impl WindowManager {
         self.load_background();
         self.render_cards(players);
         self.render_balance_and_bet_text(font);
-        self.render_updated_bank_ballance(&players.player_one, &font);
-        self.render_updated_bet(&players.player_one, &font);
+        self.render_updated_bank_ballance(&players.players[0], &font);
+        self.render_updated_bet(&players.players[0], &font);
         self.render_instructions(font);
         self.render_bust_or_win_text(&players, &font);
-        self.render_player_hand_value(&players.player_one, font);
+        self.render_player_hand_value(&players.players[0], font);
         self.canvas.present();
     }
 }

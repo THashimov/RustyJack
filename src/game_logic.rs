@@ -36,6 +36,10 @@ pub fn double(player: &mut Player) {
     }
 }
 
+pub fn split(player: &mut Player) {
+
+}
+
 pub fn check_for_blackjack_and_bust(player: &mut Player) {
     change_aces(player);
     if get_hand_value(&player.hand) > 21 && !player.is_bust {
@@ -89,29 +93,22 @@ pub fn get_hand_value(hand: &Vec<Card>) -> u8 {
 }
 
 pub fn deal_again(players: &mut Players, shoe: &mut Shoe, window_size: &(u32, u32)) {
-    players.player_one.bet = 20;
     players.dealer.hand.drain(..);
-    players.player_one.hand.drain(..);
-    players.player_two.hand.drain(..);
-    players.player_three.hand.drain(..);
-    players.player_four.hand.drain(..);
-
     players.dealer.hand.push(shoe.draw_card());
-
-    players.player_one.hand.push(shoe.draw_card());
-    players.player_two.hand.push(shoe.draw_card());
-    players.player_three.hand.push(shoe.draw_card());
-    players.player_four.hand.push(shoe.draw_card());
-
-    players.player_one.has_won = false;
-    players.player_one.has_checked = false;
-    players.player_one.is_bust = false;
-    players.player_one.can_change_bet = true;
-    players.player_one.has_blackjack = false;
-
     players.dealer.has_won = false;
     players.dealer.is_bust = false;
     players.dealer.has_finished_dealing = false;
+
+    for i in 0..players.players.len() {
+        players.players[i].bet = 20;
+        players.players[i].hand.drain(..);
+        players.players[i].hand.push(shoe.draw_card());
+        players.players[i].has_won = false;
+        players.players[i].has_checked = false;
+        players.players[i].is_bust = false;
+        players.players[i].can_change_bet = true;
+        players.players[i].has_blackjack = false;
+    }
 
     players.deal_cards(shoe, &window_size);
 }
@@ -137,26 +134,24 @@ pub fn stand(dealer: &mut Player, shoe: &mut Shoe) {
 }
 
 pub fn check_for_winner(players: &mut Players) {
-    if players.player_one.has_blackjack {
-        players.player_one.bet *= 2;
+    if players.players[0].has_blackjack {
+        players.players[0].bet *= 2;
         update_player_winnings(players);
-        players.player_one.has_blackjack = false;
+        players.players[0].has_blackjack = false;
     } else {
-        let player_hand_val = get_hand_value(&players.player_one.hand);
+        let player_hand_val = get_hand_value(&players.players[0].hand);
         let dealer_hand_val = get_hand_value(&players.dealer.hand);
 
-        if player_hand_val > dealer_hand_val && !players.player_one.is_bust
+        if player_hand_val > dealer_hand_val && !players.players[0].is_bust
             || players.dealer.is_bust
         {
-            players.player_one.has_won = true;
-        } else if dealer_hand_val > player_hand_val && !players.dealer.is_bust
-            || players.player_one.is_bust
-        {
+            players.players[0].has_won = true;
+        } else if dealer_hand_val > player_hand_val && !players.dealer.is_bust {
             players.dealer.has_won = true;
-        } else if player_hand_val == dealer_hand_val && !players.player_one.is_bust
+        } else if player_hand_val == dealer_hand_val && !players.players[0].is_bust
             || !players.dealer.is_bust
         {
-            players.player_one.has_won = true;
+            players.players[0].has_won = true;
             players.dealer.has_won = true;
         }
         update_player_winnings(players);
@@ -164,11 +159,13 @@ pub fn check_for_winner(players: &mut Players) {
 }
 
 pub fn update_player_winnings(players: &mut Players) {
-    if players.player_one.has_won {
-        players.player_one.bank_balance += players.player_one.bet
+    if players.players[0].has_won {
+        players.players[0].bank_balance += players.players[0].bet
     } else if players.dealer.has_won {
-        players.player_one.bank_balance -= players.player_one.bet
-    } else if players.player_one.has_won && players.player_one.has_blackjack {
-        players.player_one.bank_balance += players.player_one.bet * 2
+        players.players[0].bank_balance -= players.players[0].bet
+    } else if players.players[0].has_won && players.players[0].has_blackjack {
+        players.players[0].bank_balance += players.players[0].bet * 2
+    } else if players.players[0].has_won && players.dealer.has_won {
     }
 }
+

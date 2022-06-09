@@ -22,47 +22,57 @@ pub fn check_for_key_press(
             Event::KeyUp {
                 keycode: Some(Keycode::Up),
                 ..
-            } => game_logic::increase_bet(&mut players.player_one),
+            } => game_logic::increase_bet(&mut players.players[0]),
             Event::KeyUp {
                 keycode: Some(Keycode::Down),
                 ..
-            } => game_logic::decrease_bet(&mut players.player_one),
+            } => game_logic::decrease_bet(&mut players.players[0]),
             Event::KeyUp {
                 keycode: Some(Keycode::H),
                 ..
             } => {
-                players.player_one.can_change_bet = false;
-                game_logic::hit(&mut players.player_one, shoe);
+                players.players[0].can_change_bet = false;
+                game_logic::hit(&mut players.players[0], shoe);
             }
             Event::KeyUp {
                 keycode: Some(Keycode::C),
                 ..
             } => {
-                game_logic::stand(&mut players.dealer, shoe);
-                players.player_one.has_checked = true;
-                game_logic::check_for_winner(players);
+                if !players.players[0].is_bust {
+                    game_logic::stand(&mut players.dealer, shoe);
+                    players.players[0].has_checked = true;
+                    game_logic::check_for_winner(players);
+                };
             }
             Event::KeyUp {
                 keycode: Some(Keycode::D),
                 ..
             } => {
-                game_logic::double(&mut players.player_one);
-                game_logic::hit(&mut players.player_one, shoe);
+                game_logic::double(&mut players.players[0]);
+                game_logic::hit(&mut players.players[0], shoe);
                 game_logic::stand(&mut players.dealer, shoe);
             }
             Event::KeyUp {
                 keycode: Some(Keycode::R),
                 ..
             } => {
-                if players.player_one.has_won
-                    || players.player_one.is_bust
+                if players.players[0].has_won
+                    || players.players[0].is_bust
                     || players.dealer.has_won
-                    || players.player_one.has_checked
-                    || players.player_one.has_blackjack
+                    || players.players[0].has_checked
+                    || players.players[0].has_blackjack
                 {
                     return QuitOrDeal::DealAgain;
                 }
             }
+            Event::KeyUp {
+                keycode: Some(Keycode::S),
+                ..
+            } => {
+                if players.players[0].can_split {
+                game_logic::split(&mut players.players[0])
+            }
+        }
             _ => {}
         }
     }
