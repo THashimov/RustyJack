@@ -11,12 +11,6 @@ pub struct Hand {
     pub hand: Vec<Card>,
 }
 
-impl Hand {
-    pub fn new_hand(card: Vec<Card>) -> Hand {
-        Hand { hand: card }
-    }
-}
-
 #[derive(Debug)]
 pub struct Player {
     pub bet: u32,
@@ -92,7 +86,7 @@ impl Players {
 impl Player {
     fn init_player(card: Card, window_size: &(u32, u32)) -> Player {
         let hand = vec![card];
-        let hands = vec![Hand::new_hand(hand)];
+        let hands = vec![ Hand { hand }];
         Player {
             bet: 20,
             bank_balance: 200,

@@ -60,9 +60,7 @@ impl Shoe {
                 };
 
                 for _k in 0..13 {
-                    let img_src = get_img_src_for_card(Some(value), Some(suit));
-
-                    if let Some(str) = img_src {
+                    if let Some(str) = get_img_src_for_card(Some(value), Some(suit)) {
                         path = str
                     }
 

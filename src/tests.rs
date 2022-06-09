@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::card_manager::{self, Card, Shoe, SpecialCards, Suit};
-    use crate::player_manager::{Players, self};
+    use crate::player_manager::{Players, self, Hand};
     use crate::window_manager::WindowManager;
     use crate::game_logic;
     extern crate rand;
@@ -352,25 +352,25 @@ mod tests {
         // Plan is to implement a mini game to handle all of the split hand logic
         // Rendering might not work here!
         
-        // Hand can be split so let's split it
         let mut shoe = Shoe::create_shoe();
         let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
         players.deal_cards(&mut shoe, &(1000, 1000));
 
-        // Make sure the cards are the same so they can be split
-        // Set the coords to what they should be so the rendering can be tested too
-        
+        let player = &mut players.players[0];
+
+        // Sets both cards in the hand to be the same
         for i in 0..2 {
-            let coords = players.players[0].hands[0].hand[i].coords;
-            players.players[0].hands[0].hand[i] = shoe.shoe[10].clone();
-            players.players[0].hands[0].hand[i].coords = coords;
+            let coords = player.hands[player.which_hand_being_played].hand[0].coords;
+            player.hands[player.which_hand_being_played].hand[i] = shoe.shoe[10].clone();
+            player.hands[player.which_hand_being_played].hand[i].coords = coords;
         }
 
-        if player_manager::check_if_hand_can_be_split(&players.players[0].hands[0].hand) {
-            println!("so far so good")
-        }
-
-        println!("{:?}", players.players[0].hands);
+        for i in 0..40 {
+            game_logic::split(player, &mut shoe);
+        };
+        
+        println!("{:?}", player.hands);
 
     }
+
 }
