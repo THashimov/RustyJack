@@ -102,6 +102,7 @@ Once cloned and sdl2 is installed, run with cargo run.
     - [ ] Other players play basic strategy. 
 - [ ] Online
     - [ ] Create and join lobbies
+- [ ] Cross-compile for Windows and Mac 
 
 See the [open issues](https://github.com/MightyGiant21/RustyJack/issues) for a full list of proposed features (and known issues).
 
