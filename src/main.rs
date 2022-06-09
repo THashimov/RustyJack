@@ -44,6 +44,8 @@ fn main() {
         if shoe.shoe.len() < 50 {
             shoe = Shoe::create_shoe()
         }
-        window.refresh_screen(&mut players, &font);
+        if !players.players[0].has_split {
+            window.refresh_screen(&mut players, &font);
+        }
     }
 }

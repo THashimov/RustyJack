@@ -10,7 +10,7 @@ use sdl2::{
 
 use crate::{
     game_logic,
-    player_manager::{Player, Players},
+    player_manager::{Player, Players, self},
 };
 
 const BACKGROUND_PATH: &str = "./src/assets/table_img.png";
@@ -96,24 +96,27 @@ impl WindowManager {
     }
 
     fn render_player_cards(&mut self, player: &Player) {
-        for i in 0..player.hand.len() {
-            let coords = player.hand[i].coords;
-            let card_img = self
-                .texture_creator
-                .load_texture(player.hand[i].img_src.clone())
-                .unwrap();
-            let coords = Rect::new(coords.0 as i32, coords.1 as i32, 80, 110);
+        if !player_manager::check_if_hand_can_be_split(&player.hands[0].hand) {
+            for i in 0..player.hands[0].hand.len() {
+                let coords = player.hands[0].hand[i].coords;
+                let card_img = self
+                    .texture_creator
+                    .load_texture(player.hands[0].hand[i].img_src.clone())
+                    .unwrap();
+                let coords = Rect::new(coords.0 as i32, coords.1 as i32, 80, 110);
 
-            self.canvas.copy(&card_img, None, Some(coords)).unwrap();
+                self.canvas.copy(&card_img, None, Some(coords)).unwrap();
+            }
+        } else {
         }
     }
 
     fn render_dealer_cards(&mut self, dealer: &Player) {
-        for i in 0..dealer.hand.len() {
-            let coords = dealer.hand[i].coords;
+        for i in 0..dealer.hands[0].hand.len() {
+            let coords = dealer.hands[0].hand[i].coords;
             let card_img = self
                 .texture_creator
-                .load_texture(dealer.hand[i].img_src.clone())
+                .load_texture(dealer.hands[0].hand[i].img_src.clone())
                 .unwrap();
             let coords = Rect::new(coords.0 as i32, coords.1 as i32, 80, 110);
 
@@ -291,7 +294,8 @@ impl WindowManager {
     }
 
     pub fn render_player_hand_value(&mut self, player: &Player, font: &Font) {
-        let hand_val = game_logic::get_hand_value(&player.hand);
+        let hand_val =
+            game_logic::get_hand_value(&player.hands[player.which_hand_being_played].hand);
         let mut hand_val_string = String::from("Hand value: ");
         hand_val_string.push_str(&hand_val.to_string());
 

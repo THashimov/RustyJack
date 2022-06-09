@@ -1,5 +1,15 @@
 use rand::{prelude::SliceRandom, thread_rng};
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum SpecialCards {
+    Ten,
+    Jack,
+    Queen,
+    King,
+    Ace,
+    None,
+}
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Suit {
     Clubs,
@@ -75,7 +85,7 @@ impl Shoe {
             }
         }
 
-        shuffle_cards(&mut deck);
+        // shuffle_cards(&mut deck);
 
         Shoe { shoe: deck }
     }

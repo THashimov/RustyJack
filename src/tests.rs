@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use crate::card_manager::{self, Card, Shoe, Suit};
-    use crate::game_logic;
-    use crate::player_manager::Players;
+    use crate::card_manager::{self, Card, Shoe, SpecialCards, Suit};
+    use crate::player_manager::{Players, self};
     use crate::window_manager::WindowManager;
+    use crate::game_logic;
     extern crate rand;
 
     #[test]
@@ -154,14 +154,18 @@ mod tests {
         let mut shoe = Shoe::create_shoe();
         let mut players = Players::init_players_and_dealer(&mut shoe, &(0, 0));
 
-        players.players[0].hand.push(shoe.draw_card());
-        players.players[0].hand.push(shoe.draw_card());
+        let which_hand = players.players[0].which_hand_being_played;
+        players.players[0].hands[which_hand]
+            .hand
+            .push(shoe.draw_card());
+        players.players[0].hands[which_hand]
+            .hand
+            .push(shoe.draw_card());
 
-        players.players[0].hand[0].value = 10;
-        players.players[0].hand[1].value = 15;
+        players.players[0].hands[which_hand].hand[0].value = 10;
+        players.players[0].hands[which_hand].hand[1].value = 15;
 
-
-        let hand_val = game_logic::get_hand_value(&players.players[0].hand);
+        let hand_val = game_logic::get_hand_value(&players.players[which_hand].hands[0].hand);
 
         if hand_val > 21 {
             players.players[0].is_bust = true
@@ -175,17 +179,17 @@ mod tests {
         let mut shoe = Shoe::create_shoe();
         let mut players = Players::init_players_and_dealer(&mut shoe, &(0, 0));
 
-        players.dealer.hand.drain(..);
+        players.dealer.hands[0].hand.drain(..);
 
         for i in 0..players.players.len() {
-            players.players[i].hand.drain(..);
+            players.players[i].hands.drain(..);
         }
 
         players.players[0].has_won = false;
         players.players[0].is_bust = false;
         players.players[0].can_change_bet = true;
 
-        println!("Hand should be empty {:?}", players.players[0].hand)
+        println!("Hand should be empty {:?}", players.players[0].hands)
     }
 
     #[test]
@@ -194,24 +198,26 @@ mod tests {
         let mut players = Players::init_players_and_dealer(&mut shoe, &(0, 0));
         let player = &mut players.players[0];
 
-        player.hand.drain(..);
+        player.hands.drain(..);
+
+        let which_hand = 0;
 
         for _i in 0..3 {
             let card = Card::create_card(11, Suit::Diamonds, "./src/assets/AD.png".to_string());
-            player.hand.push(card);
+            player.hands[which_hand].hand.push(card);
         }
 
-        let has_ace = game_logic::check_for_ace(&player.hand);
-        let mut hand_val = game_logic::get_hand_value(&player.hand);
+        let has_ace = game_logic::check_for_ace(&player.hands[which_hand].hand);
+        let mut hand_val = game_logic::get_hand_value(&player.hands[which_hand].hand);
 
         // if hand > 21 Iter over hand and look for aces
 
         if hand_val > 21 && has_ace {
             'change_ace: loop {
-                for i in 0..player.hand.len() {
-                    if player.hand[i].value == 11 {
-                        player.hand[i].value = 1;
-                        hand_val = game_logic::get_hand_value(&player.hand);
+                for i in 0..player.hands[which_hand].hand.len() {
+                    if player.hands[which_hand].hand[i].value == 11 {
+                        player.hands[which_hand].hand[i].value = 1;
+                        hand_val = game_logic::get_hand_value(&player.hands[which_hand].hand);
                         if hand_val < 21 {
                             break 'change_ace;
                         }
@@ -231,21 +237,21 @@ mod tests {
         let mut dealer = players.dealer;
         // dealer must draw to 16 and stand on 17
 
-        while game_logic::get_hand_value(&dealer.hand) < 17 {
+        while game_logic::get_hand_value(&dealer.hands[0].hand) < 17 {
             let mut card = shoe.draw_card();
-            let index = dealer.hand.len();
+            let index = dealer.hands[0].hand.len();
 
-            let mut coords = dealer.hand[index - 1].coords;
+            let mut coords = dealer.hands[0].hand[index - 1].coords;
             coords.0 -= 20;
             coords.1 += 20;
             card.coords = coords;
-            dealer.hand.push(card);
+            dealer.hands[0].hand.push(card);
 
-            dealer.hand[0].value = 10;
-            dealer.hand[1].value = 10;
+            dealer.hands[0].hand[0].value = 10;
+            dealer.hands[0].hand[1].value = 10;
             game_logic::change_aces(&mut dealer);
         }
-        assert_eq!(game_logic::get_hand_value(&dealer.hand), 20);
+        assert_eq!(game_logic::get_hand_value(&dealer.hands[0].hand), 20);
     }
 
     #[test]
@@ -255,20 +261,116 @@ mod tests {
         players.deal_cards(&mut shoe, &(1000, 1000));
         let mut dealer = players.dealer;
         let mut player = &mut players.players[0];
-        dealer.hand.push(shoe.draw_card());
+        dealer.hands[0].hand.push(shoe.draw_card());
 
-        dealer.hand[0].value = 10;
-        dealer.hand[1].value = 9;
+        dealer.hands[0].hand[0].value = 10;
+        dealer.hands[0].hand[1].value = 9;
 
-        player.hand[0].value = 10;
-        player.hand[1].value = 8;
+        player.hands[0].hand[0].value = 10;
+        player.hands[0].hand[1].value = 8;
 
-        if game_logic::get_hand_value(&player.hand) > game_logic::get_hand_value(&dealer.hand) {
+        if game_logic::get_hand_value(&player.hands[0].hand)
+            > game_logic::get_hand_value(&dealer.hands[0].hand)
+        {
             player.has_won = true
         } else {
             dealer.has_won = true
         }
 
         assert_eq!(dealer.has_won, true)
+    }
+
+    #[test]
+    fn check_if_hand_can_be_split() {
+        let mut shoe = Shoe::create_shoe();
+        let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
+        players.deal_cards(&mut shoe, &(1000, 1000));
+
+        let which_hand = players.players[0].which_hand_being_played;
+
+        players.players[0].hands[which_hand].hand[0] = shoe.shoe[11].clone();
+        players.players[0].hands[which_hand].hand[1] = shoe.shoe[11].clone();
+
+        let hand = vec![
+            &players.players[0].hands[which_hand].hand[0],
+            &players.players[0].hands[which_hand].hand[1],
+        ];
+
+        let mut card_one = SpecialCards::None;
+        let mut card_two = SpecialCards::None;
+
+        for i in 0..2 {
+            let card: Vec<char> = hand[i].img_src.chars().collect();
+            for j in 0..card.len() {
+                match card[j] {
+                    '1' => {
+                        if i == 0 {
+                            card_one = SpecialCards::Ten
+                        } else {
+                            card_two = SpecialCards::Ten
+                        }
+                    }
+                    'J' => {
+                        if i == 0 {
+                            card_one = SpecialCards::Jack
+                        } else {
+                            card_two = SpecialCards::Jack
+                        }
+                    }
+                    'Q' => {
+                        if i == 0 {
+                            card_one = SpecialCards::Queen
+                        } else {
+                            card_two = SpecialCards::Queen
+                        }
+                    }
+                    'K' => {
+                        if i == 0 {
+                            card_one = SpecialCards::King
+                        } else {
+                            card_two = SpecialCards::King
+                        }
+                    }
+                    'A' => {
+                        if i == 0 {
+                            card_one = SpecialCards::Ace
+                        } else {
+                            card_two = SpecialCards::Ace
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        assert_eq!(card_one, SpecialCards::King);
+        assert_eq!(card_two, SpecialCards::King);
+    }
+
+    #[test]
+    fn play_with_split_hands() {
+        // Big ol function here
+        // Plan is to implement a mini game to handle all of the split hand logic
+        // Rendering might not work here!
+        
+        // Hand can be split so let's split it
+        let mut shoe = Shoe::create_shoe();
+        let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
+        players.deal_cards(&mut shoe, &(1000, 1000));
+
+        // Make sure the cards are the same so they can be split
+        // Set the coords to what they should be so the rendering can be tested too
+        
+        for i in 0..2 {
+            let coords = players.players[0].hands[0].hand[i].coords;
+            players.players[0].hands[0].hand[i] = shoe.shoe[10].clone();
+            players.players[0].hands[0].hand[i].coords = coords;
+        }
+
+        if player_manager::check_if_hand_can_be_split(&players.players[0].hands[0].hand) {
+            println!("so far so good")
+        }
+
+        println!("{:?}", players.players[0].hands);
+
     }
 }

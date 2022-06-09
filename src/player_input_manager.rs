@@ -1,4 +1,8 @@
-use crate::{card_manager::Shoe, game_logic, player_manager::Players};
+use crate::{
+    card_manager::Shoe,
+    game_logic,
+    player_manager::{self, Players},
+};
 use sdl2::{event::Event, keyboard::Keycode, EventPump};
 
 pub enum QuitOrDeal {
@@ -69,10 +73,12 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::S),
                 ..
             } => {
-                if players.players[0].can_split {
-                game_logic::split(&mut players.players[0])
+                if player_manager::check_if_hand_can_be_split(
+                    &players.players[0].hands[players.players[0].which_hand_being_played].hand,
+                ) {
+                    game_logic::split(&mut players.players[0], shoe);
+                }
             }
-        }
             _ => {}
         }
     }
