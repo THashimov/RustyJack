@@ -1,9 +1,12 @@
 #[cfg(test)]
 mod tests {
+    use sdl2::image::LoadTexture;
+    use sdl2::rect::Rect;
+
     use crate::card_manager::{self, Card, Shoe, SpecialCards, Suit};
-    use crate::player_manager::{Players, self, Hand};
-    use crate::window_manager::WindowManager;
     use crate::game_logic;
+    use crate::player_manager::{self, Hand, Players};
+    use crate::window_manager::{self, WindowManager};
     extern crate rand;
 
     #[test]
@@ -345,32 +348,4 @@ mod tests {
         assert_eq!(card_one, SpecialCards::King);
         assert_eq!(card_two, SpecialCards::King);
     }
-
-    #[test]
-    fn play_with_split_hands() {
-        // Big ol function here
-        // Plan is to implement a mini game to handle all of the split hand logic
-        // Rendering might not work here!
-        
-        let mut shoe = Shoe::create_shoe();
-        let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
-        players.deal_cards(&mut shoe, &(1000, 1000));
-
-        let player = &mut players.players[0];
-
-        // Sets both cards in the hand to be the same
-        for i in 0..2 {
-            let coords = player.hands[player.which_hand_being_played].hand[0].coords;
-            player.hands[player.which_hand_being_played].hand[i] = shoe.shoe[10].clone();
-            player.hands[player.which_hand_being_played].hand[i].coords = coords;
-        }
-
-        for i in 0..40 {
-            game_logic::split(player, &mut shoe);
-        };
-        
-        println!("{:?}", player.hands);
-
-    }
-
 }

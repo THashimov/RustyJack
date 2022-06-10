@@ -1,30 +1,14 @@
 use crate::card_manager::{Card, Shoe, SpecialCards};
 
 #[derive(Debug)]
-pub struct Players {
-    pub players: Vec<Player>,
-    pub dealer: Player,
-}
-
-#[derive(Debug)]
 pub struct Hand {
     pub hand: Vec<Card>,
 }
 
 #[derive(Debug)]
-pub struct Player {
-    pub bet: u32,
-    pub bank_balance: u32,
-    pub hands: Vec<Hand>,
-    pub window_size: (u32, u32),
-    pub which_hand_being_played: usize,
-    pub can_change_bet: bool,
-    pub has_checked: bool,
-    pub is_bust: bool,
-    pub has_won: bool,
-    pub has_blackjack: bool,
-    pub has_finished_dealing: bool,
-    pub has_split: bool,
+pub struct Players {
+    pub players: Vec<Player>,
+    pub dealer: Player,
 }
 
 impl Players {
@@ -83,15 +67,35 @@ impl Players {
     }
 }
 
+#[derive(Debug)]
+pub struct Player {
+    pub bet: u32,
+    pub bank_balance: u32,
+    pub hands: Vec<Hand>,
+    pub window_size: (u32, u32),
+    pub split_start_coords: (u32, u32),
+    pub which_hand_being_played: usize,
+    pub can_change_bet: bool,
+    pub has_checked: bool,
+    pub is_bust: bool,
+    pub has_won: bool,
+    pub has_blackjack: bool,
+    pub has_finished_dealing: bool,
+    pub all_hands_played: bool,
+}
+
 impl Player {
     fn init_player(card: Card, window_size: &(u32, u32)) -> Player {
         let hand = vec![card];
-        let hands = vec![ Hand { hand }];
+        let hands = vec![Hand { hand }];
+        let split_start_coords = get_starting_coords_of_split_hands(&window_size);
+
         Player {
             bet: 20,
             bank_balance: 200,
             hands,
             window_size: *window_size,
+            split_start_coords,
             which_hand_being_played: 0,
             can_change_bet: true,
             has_checked: false,
@@ -99,7 +103,7 @@ impl Player {
             has_won: false,
             has_blackjack: false,
             has_finished_dealing: false,
-            has_split: false,
+            all_hands_played: false,
         }
     }
 }
@@ -159,4 +163,14 @@ pub fn check_if_hand_can_be_split(hand: &Vec<Card>) -> bool {
     } else {
         false
     }
+}
+
+fn get_starting_coords_of_split_hands(window_size: &(u32, u32)) -> (u32, u32) {
+    let space_between_players = window_size.0 / 5;
+    let x_coord = window_size.0 - (space_between_players * 4);
+
+    let dealer_y_coord = window_size.1 / 4;
+    let player_y_coord = dealer_y_coord + dealer_y_coord * 2;
+
+    return (x_coord, player_y_coord);
 }

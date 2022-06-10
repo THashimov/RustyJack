@@ -89,7 +89,14 @@ impl Shoe {
     }
 
     pub fn draw_card(&mut self) -> Card {
-        self.shoe.pop().unwrap()
+        let mut card = self.shoe.pop().unwrap();
+        if self.shoe.len() < 298 {
+            card = self.shoe.pop().unwrap();
+        } else {
+            card = self.shoe[10].clone();
+            self.shoe.pop().unwrap();
+        }
+        card
     }
 }
 

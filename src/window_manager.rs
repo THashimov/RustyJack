@@ -10,7 +10,7 @@ use sdl2::{
 
 use crate::{
     game_logic,
-    player_manager::{Player, Players, self},
+    player_manager::{Player, Players},
 };
 
 const BACKGROUND_PATH: &str = "./src/assets/table_img.png";
@@ -96,18 +96,17 @@ impl WindowManager {
     }
 
     fn render_player_cards(&mut self, player: &Player) {
-        if !player_manager::check_if_hand_can_be_split(&player.hands[0].hand) {
-            for i in 0..player.hands[0].hand.len() {
-                let coords = player.hands[0].hand[i].coords;
+        for i in 0..player.hands.len() {
+            for j in 0..player.hands[i].hand.len() {
+                let coords = player.hands[i].hand[j].coords;
                 let card_img = self
                     .texture_creator
-                    .load_texture(player.hands[0].hand[i].img_src.clone())
+                    .load_texture(player.hands[i].hand[j].img_src.clone())
                     .unwrap();
                 let coords = Rect::new(coords.0 as i32, coords.1 as i32, 80, 110);
 
                 self.canvas.copy(&card_img, None, Some(coords)).unwrap();
             }
-        } else {
         }
     }
 
@@ -261,27 +260,60 @@ impl WindowManager {
     pub fn render_bust_or_win_text(&mut self, players: &Players, font: &Font) {
         let mut text = String::from(" ");
         let player = &players.players[0];
-        if player.is_bust {
-            text = String::from("You went bust!")
-        } else if player.has_won && !player.has_blackjack {
-            text = String::from("You win!")
-        } else if player.has_blackjack && player.has_won {
-            text = String::from("Blackjack!")
-        } else if players.dealer.has_won {
-            text = String::from("Dealer wins!")
-        } else if players.dealer.has_won && player.has_won {
-            text = String::from("Push")
-        }
 
-        let text_coords = Rect::new(
-            ((self.window_size.0 / 2) - ((text.len() * 10) as u32 / 2)) as i32,
-            (self.window_size.1 / 2) as i32,
-            (text.len() * 10) as u32,
+        if players.players[0].hands.len() < 2 {
+            if player.is_bust {
+                text = String::from("You went bust!")
+            } else if player.has_won && !player.has_blackjack && !players.dealer.has_won {
+                text = String::from("You win!")
+            } else if player.has_blackjack && player.has_won {
+                text = String::from("Blackjack!")
+            } else if players.dealer.has_won && !player.has_won {
+                text = String::from("Dealer wins!")
+            } else if players.dealer.has_won && player.has_won {
+                text = String::from("Push")
+            }
+
+            let text_coords = Rect::new(
+                ((self.window_size.0 / 2) - ((text.len() * 10) as u32 / 2)) as i32,
+                (self.window_size.1 / 2) as i32,
+                (text.len() * 10) as u32,
+                self.balance_and_bet.text_height,
+            );
+
+            let surface = font
+                .render(&text)
+                .blended(self.balance_and_bet.text_col)
+                .unwrap();
+
+            let texture = self
+                .texture_creator
+                .create_texture_from_surface(&surface)
+                .unwrap();
+
+            self.canvas.copy(&texture, None, Some(text_coords)).unwrap();
+        }
+    }
+
+    pub fn render_player_hand_value(&mut self, players: &Players, font: &Font) {
+        let player = &players.players[0];
+        let mut player_hand_val_string = String::from("Hand value: ");
+        let player_hand_val =
+            game_logic::get_hand_value(&player.hands[player.which_hand_being_played].hand);
+        player_hand_val_string.push_str(&player_hand_val.to_string());
+
+        let x = (self.window_size.0 - player_hand_val_string.len() as u32 * 20) as i32 + 7;
+        let y = self.balance_and_bet.y_coord;
+
+        let coords = Rect::new(
+            x,
+            y,
+            (player_hand_val_string.len() * 10) as u32,
             self.balance_and_bet.text_height,
         );
 
         let surface = font
-            .render(&text)
+            .render(&player_hand_val_string)
             .blended(self.balance_and_bet.text_col)
             .unwrap();
 
@@ -290,24 +322,21 @@ impl WindowManager {
             .create_texture_from_surface(&surface)
             .unwrap();
 
-        self.canvas.copy(&texture, None, Some(text_coords)).unwrap();
-    }
+        self.canvas.copy(&texture, None, Some(coords)).unwrap();
 
-    pub fn render_player_hand_value(&mut self, player: &Player, font: &Font) {
-        let hand_val =
-            game_logic::get_hand_value(&player.hands[player.which_hand_being_played].hand);
-        let mut hand_val_string = String::from("Hand value: ");
-        hand_val_string.push_str(&hand_val.to_string());
+        let mut dealer_hand_val_string = String::from("Dealer hand value: ");
+        let dealer_hand_val = game_logic::get_hand_value(&players.dealer.hands[0].hand);
+        dealer_hand_val_string.push_str(&dealer_hand_val.to_string());
 
         let coords = Rect::new(
-            (self.window_size.0 - hand_val_string.len() as u32 * 20) as i32,
-            self.balance_and_bet.y_coord,
-            (hand_val_string.len() * 10) as u32,
+            x,
+            y + self.balance_and_bet.text_height as i32 + 10,
+            (player_hand_val_string.len() * 10) as u32,
             self.balance_and_bet.text_height,
         );
 
         let surface = font
-            .render(&hand_val_string)
+            .render(&dealer_hand_val_string)
             .blended(self.balance_and_bet.text_col)
             .unwrap();
 
@@ -328,7 +357,7 @@ impl WindowManager {
         self.render_updated_bet(&players.players[0], &font);
         self.render_instructions(font);
         self.render_bust_or_win_text(&players, &font);
-        self.render_player_hand_value(&players.players[0], font);
+        self.render_player_hand_value(&players, font);
         self.canvas.present();
     }
 }
