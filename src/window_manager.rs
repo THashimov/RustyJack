@@ -89,6 +89,7 @@ impl InstructionText {
         self.coords = rect;
     }
 }
+
 pub struct WindowManager {
     pub sdl_context: Sdl,
     pub canvas: Canvas<Window>,
@@ -203,12 +204,8 @@ impl WindowManager {
     }
 
     pub fn render_updated_bet(&mut self, player: &Player, font: &Font) {
-<<<<<<< HEAD
         let bet_amount_as_str = player.bet[player.which_hand_being_played].to_string();
         let mut rect = self.balance_and_bet.bet_amount_text_coords;
-=======
-        let bet_amount = player.bet[player.which_hand_being_played].to_string();
->>>>>>> 0cecaa8bd04a2a865217c3f907527d6d42f76074
 
         rect.x += (self.balance_and_bet.bet_amount_text.len() * 10) as i32 + 40;
         rect.y = self.balance_and_bet.y_coord + self.balance_and_bet.text_height as i32;
@@ -271,55 +268,29 @@ impl WindowManager {
 
     pub fn render_player_hand_value(&mut self, players: &Players, font: &Font) {
         let player = &players.players[0];
+
         let mut player_hand_val_string = String::from("Hand value: ");
         let player_hand_val =
             game_logic::get_hand_value(&player.hands[player.which_hand_being_played].hand);
         player_hand_val_string.push_str(&player_hand_val.to_string());
 
+        let mut dealer_hand_val_string = String::from("Dealer hand value: ");
+        let dealer_hand_val = game_logic::get_hand_value(&players.dealer.hands[0].hand);
+        dealer_hand_val_string.push_str(&dealer_hand_val.to_string());
+
         let x = (self.window_size.0 - player_hand_val_string.len() as u32 * 20) as i32 + 7;
         let y = self.balance_and_bet.y_coord;
 
-        let coords = Rect::new(
+        let mut rect = Rect::new(
             x,
             y,
             (player_hand_val_string.len() * 10) as u32,
             self.balance_and_bet.text_height,
         );
 
-        let surface = font
-            .render(&player_hand_val_string)
-            .blended(self.balance_and_bet.text_col)
-            .unwrap();
-
-        let texture = self
-            .texture_creator
-            .create_texture_from_surface(&surface)
-            .unwrap();
-
-        self.canvas.copy(&texture, None, Some(coords)).unwrap();
-
-        let mut dealer_hand_val_string = String::from("Dealer hand value: ");
-        let dealer_hand_val = game_logic::get_hand_value(&players.dealer.hands[0].hand);
-        dealer_hand_val_string.push_str(&dealer_hand_val.to_string());
-
-        let coords = Rect::new(
-            x,
-            y + self.balance_and_bet.text_height as i32 + 10,
-            (player_hand_val_string.len() * 10) as u32,
-            self.balance_and_bet.text_height,
-        );
-
-        let surface = font
-            .render(&dealer_hand_val_string)
-            .blended(self.balance_and_bet.text_col)
-            .unwrap();
-
-        let texture = self
-            .texture_creator
-            .create_texture_from_surface(&surface)
-            .unwrap();
-
-        self.canvas.copy(&texture, None, Some(coords)).unwrap();
+        self.render_text(font, rect, &player_hand_val_string);
+        rect.y += self.balance_and_bet.text_height as i32 + 10;
+        self.render_text(font, rect, &dealer_hand_val_string);
     }
 
     pub fn refresh_screen(&mut self, players: &Players, font: &Font) {
