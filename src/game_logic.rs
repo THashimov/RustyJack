@@ -87,12 +87,20 @@ pub fn check_for_blackjack_and_bust(players: &mut Players) {
     let which_hand = players.players[0].which_hand_being_played;
     change_aces(&mut players.players[0]);
 
+<<<<<<< HEAD
     if get_hand_value(&players.players[0].hands[which_hand].hand) > 21 {
         players.players[0].is_bust = true;
         update_player_winnings(players);
         // player.bank_balance -= player.bet[player.which_hand_being_played];
     } else if get_hand_value(&players.players[0].hands[which_hand].hand) == 21
         && players.players[0].hands[which_hand].hand.len() <= 2
+=======
+    if get_hand_value(&player.hands[which_hand].hand) > 21 && !player.is_bust {
+        player.is_bust = true;
+        player.bank_balance -= player.bet[player.which_hand_being_played];
+    } else if get_hand_value(&player.hands[which_hand].hand) == 21
+        && player.hands[which_hand].hand.len() <= 2
+>>>>>>> 0cecaa8bd04a2a865217c3f907527d6d42f76074
     {
         players.players[0].has_blackjack = true;
         players.players[0].has_checked = true;
@@ -166,6 +174,7 @@ pub fn update_player_winnings(players: &mut Players) {
     let mut player = &mut players.players[0];
 
     if player.hands.len() < 2 {
+<<<<<<< HEAD
         if player.has_won && !players.dealer.has_won {
             player.bank_balance += player.bet[0]
         } else if players.dealer.has_won && !player.has_won {
@@ -174,7 +183,17 @@ pub fn update_player_winnings(players: &mut Players) {
             player.bank_balance += player.bet[0] * 2
         } else if player.has_won && players.dealer.has_won {
         }
+=======
+    if player.has_won && !players.dealer.has_won {
+        player.bank_balance += player.bet[0]
+    } else if players.dealer.has_won && !player.has_won {
+        player.bank_balance -= player.bet[0]
+    } else if player.has_won && player.has_blackjack {
+        player.bank_balance += player.bet[0] * 2
+    } else if player.has_won && players.dealer.has_won {
+>>>>>>> 0cecaa8bd04a2a865217c3f907527d6d42f76074
     }
+}
 }
 
 pub fn deal_again(players: &mut Players, shoe: &mut Shoe, window_size: &(u32, u32)) {
