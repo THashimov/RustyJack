@@ -34,12 +34,7 @@ fn main() {
             QuitOrDeal::KeepPlaying => {}
         }
 
-        game_logic::check_for_blackjack_and_bust(&mut players.players[0]);
-
-        // if players.players[0].has_checked && !players.dealer.has_finished_dealing {
-        //     game_logic::stand(&mut players.dealer, &mut shoe);
-        //     game_logic::check_for_winner(&mut players);
-        // };
+        game_logic::check_for_blackjack_and_bust(&mut players);
 
         if shoe.shoe.len() < 50 {
             shoe = Shoe::create_shoe()

@@ -144,7 +144,8 @@ mod tests {
         let mut shoe = Shoe::create_shoe();
         let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
 
-        players.players[0].bank_balance = players.players[0].bank_balance - players.players[0].bet[0];
+        players.players[0].bank_balance =
+            players.players[0].bank_balance - players.players[0].bet[0];
 
         assert_eq!(players.players[0].bank_balance, 180)
     }

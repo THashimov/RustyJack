@@ -17,10 +17,13 @@ const BACKGROUND_PATH: &str = "./src/assets/table_img.png";
 
 pub struct BalanceAndBet {
     pub text_height: u32,
+    pub x_coord: i32,
     pub y_coord: i32,
     pub text_col: Color,
     pub bank_balance_text: String,
+    pub bank_balance_coords: Rect,
     pub bet_amount_text: String,
+    pub bet_amount_text_coords: Rect,
     pub bank_balance_number: String,
     pub bet_amount_number: String,
 }
@@ -30,18 +33,62 @@ impl BalanceAndBet {
         let text_height = window_size.0 / 35;
         let y_coord = (window_size.1 / 4) as i32;
         let text_col = Color::RGB(0, 0, 0);
+        let bank_balance_text = String::from("Balance: ");
+        let bet_amount_text = String::from("Bet: ");
+
+        let bank_balance_coords = Rect::new(
+            10,
+            y_coord,
+            (bank_balance_text.len() * 10) as u32,
+            text_height,
+        );
+
+        let bet_amount_text_coords = Rect::new(
+            10,
+            y_coord + text_height as i32,
+            (bank_balance_text.len() * 10) as u32,
+            text_height,
+        );
+
         BalanceAndBet {
             text_height,
             y_coord,
+            x_coord: 10,
             text_col,
-            bank_balance_text: String::from("Balance: "),
-            bet_amount_text: String::from("Bet: "),
+            bank_balance_text,
+            bank_balance_coords,
+            bet_amount_text,
+            bet_amount_text_coords,
             bank_balance_number: String::new(),
             bet_amount_number: String::new(),
         }
     }
 }
 
+pub struct InstructionText {
+    coords: Rect,
+    text: String
+}
+
+impl InstructionText {
+    fn init_inst_location(y_coord: i32, text_height: i32) -> InstructionText {
+        let text = String::new();
+        let coords = Rect::new(
+            10,
+            y_coord,
+            (text.len() * 10) as u32,
+            text_height as u32,
+            );
+
+        InstructionText { coords, text }
+    }
+
+    fn change_width_of_rect(&mut self, text_height: u32) {
+        let rect = Rect::new(self.coords.x, self.coords.y, self.text.len() as u32 * 10, text_height); 
+        
+        self.coords = rect;
+    }
+}
 pub struct WindowManager {
     pub sdl_context: Sdl,
     pub canvas: Canvas<Window>,
@@ -49,6 +96,7 @@ pub struct WindowManager {
     pub texture_creator: TextureCreator<WindowContext>,
     pub window_size: (u32, u32),
     pub balance_and_bet: BalanceAndBet,
+    win_or_lose_text_coords: Rect
 }
 
 impl WindowManager {
@@ -69,6 +117,8 @@ impl WindowManager {
         let mut canvas = window.into_canvas().build().unwrap();
         let texture_creator = canvas.texture_creator();
 
+        let win_or_lose_text_coords = Rect::new(0, 0, 0, 0);
+
         canvas.clear();
 
         WindowManager {
@@ -78,6 +128,7 @@ impl WindowManager {
             texture_creator,
             window_size,
             balance_and_bet,
+            win_or_lose_text_coords
         }
     }
 
@@ -123,144 +174,73 @@ impl WindowManager {
         }
     }
 
-    pub fn render_balance_and_bet_text(&mut self, font: &Font) {
-        let bank_balance_coords = Rect::new(
-            10,
-            self.balance_and_bet.y_coord,
-            (self.balance_and_bet.bank_balance_text.len() * 10) as u32,
-            self.balance_and_bet.text_height,
-        );
-
+    pub fn render_text(&mut self, font: &Font, rect: Rect, text: &str) {
         let surface = font
-            .render(&self.balance_and_bet.bank_balance_text)
-            .blended(self.balance_and_bet.text_col)
-            .unwrap();
+        .render(&text)
+        .blended(self.balance_and_bet.text_col)
+        .unwrap();
 
         let texture = self
-            .texture_creator
-            .create_texture_from_surface(&surface)
-            .unwrap();
+        .texture_creator
+        .create_texture_from_surface(&surface)
+        .unwrap();
 
         self.canvas
-            .copy(&texture, None, Some(bank_balance_coords))
-            .unwrap();
-
-        let bet_coords = Rect::new(
-            10,
-            self.balance_and_bet.y_coord + self.balance_and_bet.text_height as i32,
-            (self.balance_and_bet.bet_amount_text.len() * 10) as u32,
-            self.balance_and_bet.text_height,
-        );
-
-        let surface = font
-            .render(&self.balance_and_bet.bet_amount_text)
-            .blended(self.balance_and_bet.text_col)
-            .unwrap();
-
-        let texture = self
-            .texture_creator
-            .create_texture_from_surface(&surface)
-            .unwrap();
-
-        self.canvas.copy(&texture, None, Some(bet_coords)).unwrap();
+        .copy(&texture, None, Some(rect))
+        .unwrap();
+    }
+    pub fn render_balance_and_bet_text(&mut self, font: &Font) {
+        let balance = self.balance_and_bet.bank_balance_text.clone();
+        let bet = self.balance_and_bet.bet_amount_text.clone();
+        self.render_text(font, self.balance_and_bet.bank_balance_coords, &balance);
+        self.render_text(font, self.balance_and_bet.bet_amount_text_coords, &bet);
     }
 
     pub fn render_updated_bank_ballance(&mut self, player: &Player, font: &Font) {
-        let bank_balance = player.bank_balance.to_string();
-
-        let coords = Rect::new(
-            10 + (self.balance_and_bet.bank_balance_text.len() * 10) as i32,
-            self.balance_and_bet.y_coord,
-            (self.balance_and_bet.bank_balance_text.len() * 10) as u32,
-            self.balance_and_bet.text_height,
-        );
-
-        let surface = font
-            .render(&bank_balance)
-            .blended(self.balance_and_bet.text_col)
-            .unwrap();
-
-        let texture = self
-            .texture_creator
-            .create_texture_from_surface(&surface)
-            .unwrap();
-
-        self.canvas.copy(&texture, None, Some(coords)).unwrap();
+        let mut rect = self.balance_and_bet.bank_balance_coords;
+        rect.x += (self.balance_and_bet.bank_balance_text.len() * 10) as i32;
+        self.render_text(font, rect, &player.bank_balance.to_string());
     }
 
     pub fn render_updated_bet(&mut self, player: &Player, font: &Font) {
-        let bet_amount = player.bet[player.which_hand_being_played].to_string();
+        let bet_amount_as_str = player.bet[player.which_hand_being_played].to_string();
+        let mut rect = self.balance_and_bet.bet_amount_text_coords;
 
-        let coords = Rect::new(
-            10 + (self.balance_and_bet.bet_amount_text.len() * 10) as i32,
-            self.balance_and_bet.y_coord + self.balance_and_bet.text_height as i32,
-            (self.balance_and_bet.bet_amount_text.len() * 10) as u32,
-            self.balance_and_bet.text_height,
-        );
+        rect.x += (self.balance_and_bet.bet_amount_text.len() * 10) as i32 + 40;
+        rect.y = self.balance_and_bet.y_coord + self.balance_and_bet.text_height as i32;
 
-        let surface = font
-            .render(&bet_amount)
-            .blended(self.balance_and_bet.text_col)
-            .unwrap();
-
-        let texture = self
-            .texture_creator
-            .create_texture_from_surface(&surface)
-            .unwrap();
-
-        self.canvas.copy(&texture, None, Some(coords)).unwrap();
+        self.render_text(font, rect, &bet_amount_as_str);
     }
 
     pub fn render_instructions(&mut self, font: &Font) {
-        let y_coord =
-            self.balance_and_bet.y_coord + ((self.balance_and_bet.text_height * 2) + 20) as i32;
-        let mut text = String::from("Up Arrow - Increase Bet");
-        let mut coords = Rect::new(
-            10,
-            y_coord,
-            (text.len() * 10) as u32,
-            self.balance_and_bet.text_height,
-        );
+        let y_coord = self.balance_and_bet.y_coord + ((self.balance_and_bet.text_height * 2) + 20) as i32;
 
-        let mut surface = font.render(&text).blended(Color::RGB(0, 0, 0)).unwrap();
-        let mut texture = self
-            .texture_creator
-            .create_texture_from_surface(&surface)
-            .unwrap();
+        let mut inst_obj = 
+            InstructionText::init_inst_location(y_coord, self.balance_and_bet.text_height as i32);
+        
 
         for i in 0..8 {
-            self.canvas.copy(&texture, None, Some(coords)).unwrap();
-            surface = font
-                .render(&text)
-                .blended(self.balance_and_bet.text_col)
-                .unwrap();
-            texture = self
-                .texture_creator
-                .create_texture_from_surface(&surface)
-                .unwrap();
-            coords = Rect::new(
-                10,
-                y_coord + (self.balance_and_bet.text_height * i) as i32,
-                (text.len() * 10) as u32,
-                self.balance_and_bet.text_height,
-            );
-
             match i {
-                0 => text = String::from("Down Arrow - Decrease Bet"),
-                1 => text = String::from("H - Hit"),
-                2 => text = String::from("C - Check"),
-                3 => text = String::from("D - Double"),
-                4 => text = String::from("S - Split"),
-                5 => text = String::from("R - Deal Again"),
+                0 => inst_obj.text = String::from("Up Arrow - Increase Bet"),
+                1 => inst_obj.text = String::from("Down Arrow - Decrease Bet"),
+                2 => inst_obj.text = String::from("H - Hit"),
+                3 => inst_obj.text = String::from("C - Check"),
+                4 => inst_obj.text = String::from("D - Double"),
+                5 => inst_obj.text = String::from("S - Split"),
+                6 => inst_obj.text = String::from("R - Deal Again"),
                 _ => {}
             }
+            inst_obj.change_width_of_rect(self.balance_and_bet.text_height);
+            self.render_text(font, inst_obj.coords, &inst_obj.text);
+            inst_obj.coords.y += self.balance_and_bet.text_height as i32;
+            
         }
     }
 
     pub fn render_bust_or_win_text(&mut self, players: &Players, font: &Font) {
         let mut text = String::from(" ");
         let player = &players.players[0];
-
+        
         if players.players[0].hands.len() < 2 {
             if player.is_bust {
                 text = String::from("You went bust!")
@@ -273,26 +253,16 @@ impl WindowManager {
             } else if players.dealer.has_won && player.has_won {
                 text = String::from("Push")
             }
-
-            let text_coords = Rect::new(
-                ((self.window_size.0 / 2) - ((text.len() * 10) as u32 / 2)) as i32,
-                (self.window_size.1 / 2) as i32,
-                (text.len() * 10) as u32,
-                self.balance_and_bet.text_height,
-            );
-
-            let surface = font
-                .render(&text)
-                .blended(self.balance_and_bet.text_col)
-                .unwrap();
-
-            let texture = self
-                .texture_creator
-                .create_texture_from_surface(&surface)
-                .unwrap();
-
-            self.canvas.copy(&texture, None, Some(text_coords)).unwrap();
         }
+
+        self.win_or_lose_text_coords = Rect::new(
+            ((self.window_size.0 / 2) - ((text.len() * 10) as u32 / 2)) as i32,
+            (self.window_size.1 / 2) as i32,
+            (text.len() * 10) as u32,
+            self.balance_and_bet.text_height,
+        );
+
+        self.render_text(font, self.win_or_lose_text_coords, &text);
     }
 
     pub fn render_player_hand_value(&mut self, players: &Players, font: &Font) {
