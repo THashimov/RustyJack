@@ -189,7 +189,7 @@ impl WindowManager {
     }
 
     pub fn render_updated_bet(&mut self, player: &Player, font: &Font) {
-        let bet_amount = player.bet.to_string();
+        let bet_amount = player.bet[player.which_hand_being_played].to_string();
 
         let coords = Rect::new(
             10 + (self.balance_and_bet.bet_amount_text.len() * 10) as i32,

@@ -69,7 +69,7 @@ impl Players {
 
 #[derive(Debug)]
 pub struct Player {
-    pub bet: u32,
+    pub bet: [u32; 4],
     pub bank_balance: u32,
     pub hands: Vec<Hand>,
     pub window_size: (u32, u32),
@@ -91,7 +91,7 @@ impl Player {
         let split_start_coords = get_starting_coords_of_split_hands(&window_size);
 
         Player {
-            bet: 20,
+            bet: [20, 20, 20, 20],
             bank_balance: 200,
             hands,
             window_size: *window_size,

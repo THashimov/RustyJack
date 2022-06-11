@@ -5,14 +5,14 @@ use crate::{
 
 pub fn increase_bet(player: &mut Player) {
     if player.bank_balance > 0 && player.can_change_bet {
-        player.bet += 1;
+        player.bet[0] += 1;
         player.bank_balance -= 1;
     }
 }
 
 pub fn decrease_bet(player: &mut Player) {
-    if player.bet > 0 && player.can_change_bet {
-        player.bet -= 1;
+    if player.bet[0] > 0 && player.can_change_bet {
+        player.bet[0] -= 1;
         player.bank_balance += 1;
     }
 }
@@ -52,7 +52,7 @@ pub fn hit(player: &mut Player, shoe: &mut Shoe) {
 
 pub fn double(player: &mut Player) {
     if !player.has_checked {
-        player.bet *= 2
+        player.bet[player.which_hand_being_played] = player.bet[0] * 2;
     }
 }
 
@@ -89,7 +89,7 @@ pub fn check_for_blackjack_and_bust(player: &mut Player) {
 
     if get_hand_value(&player.hands[which_hand].hand) > 21 && !player.is_bust {
         player.is_bust = true;
-        player.bank_balance -= player.bet;
+        player.bank_balance -= player.bet[player.which_hand_being_played];
     } else if get_hand_value(&player.hands[which_hand].hand) == 21
         && player.hands[which_hand].hand.len() <= 2
     {
@@ -134,9 +134,9 @@ pub fn check_for_ace(hand: &Vec<Card>) -> bool {
 pub fn check_for_winner(players: &mut Players) {
     let which_hand = players.players[0].which_hand_being_played;
 
-    if players.players[0].hands.len() > 0 {
+    if players.players[0].hands.len() < 2 {
         if players.players[0].has_blackjack {
-            players.players[0].bet *= 2;
+            players.players[0].bet[0] *= 2;
             update_player_winnings(players);
             players.players[0].has_blackjack = false;
         } else {
@@ -164,14 +164,16 @@ pub fn check_for_winner(players: &mut Players) {
 pub fn update_player_winnings(players: &mut Players) {
     let mut player = &mut players.players[0];
 
+    if player.hands.len() < 2 {
     if player.has_won && !players.dealer.has_won {
-        player.bank_balance += player.bet
+        player.bank_balance += player.bet[0]
     } else if players.dealer.has_won && !player.has_won {
-        player.bank_balance -= player.bet
+        player.bank_balance -= player.bet[0]
     } else if player.has_won && player.has_blackjack {
-        player.bank_balance += player.bet * 2
+        player.bank_balance += player.bet[0] * 2
     } else if player.has_won && players.dealer.has_won {
     }
+}
 }
 
 pub fn deal_again(players: &mut Players, shoe: &mut Shoe, window_size: &(u32, u32)) {
@@ -185,7 +187,7 @@ pub fn deal_again(players: &mut Players, shoe: &mut Shoe, window_size: &(u32, u3
         let hand = Hand {
             hand: vec![shoe.draw_card()],
         };
-        players.players[i].bet = 20;
+        players.players[i].bet[i] = 20;
         players.players[i].hands.drain(..);
         players.players[i].hands.push(hand);
         players.players[i].has_won = false;

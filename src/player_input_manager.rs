@@ -76,6 +76,11 @@ pub fn check_for_key_press(
                     game_logic::double(&mut players.players[0]);
                     game_logic::hit(&mut players.players[0], shoe);
                     game_logic::stand(&mut players.dealer, shoe);
+                } else {
+                    if !players.players[0].all_hands_played {
+                        game_logic::double(&mut players.players[0]);
+                        game_logic::hit(&mut players.players[0], shoe);
+                    }
                 }
             }
             Event::KeyUp {
