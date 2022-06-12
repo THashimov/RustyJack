@@ -35,67 +35,38 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::H),
                 ..
             } => {
-                if players.players[0].hands.len() < 2 {
-                    players.players[0].can_change_bet = false;
-                    game_logic::hit(&mut players.players[0], shoe);
-                } else {
-                    game_logic::hit(&mut players.players[0], shoe);
-                }
+                players.players[0].can_change_bet = false;
+                game_logic::hit(&mut players.players[0], shoe);
             }
             Event::KeyUp {
                 keycode: Some(Keycode::C),
                 ..
             } => {
-                if players.players[0].hands.len() < 2 {
-                    if !players.players[0].is_bust {
-                        if players.players[0].which_hand_being_played == 0 {
-                            players.players[0].all_hands_played = true;
-                        }
-                        game_logic::stand(&mut players.dealer, shoe);
-                        players.players[0].has_checked = true;
-                        game_logic::check_for_winner(players);
-                    };
-                } else {
-                    let has_overflown = players.players[0]
-                        .which_hand_being_played
-                        .overflowing_sub(1)
-                        .1;
-                    if !has_overflown {
-                        players.players[0].which_hand_being_played -= 1;
-                    } else {
-                        players.players[0].all_hands_played = true;
-                        players.players[0].has_checked = true;
-                    };
-                }
+                if !players.players[0].is_bust {
+                    game_logic::stand(&mut players.dealer, shoe);
+                    players.players[0].has_checked = true;
+                    game_logic::check_for_winner(players);
+                };
             }
             Event::KeyUp {
                 keycode: Some(Keycode::D),
                 ..
             } => {
-                if players.players[0].hands.len() < 2 {
-                    game_logic::double(&mut players.players[0]);
-                    game_logic::hit(&mut players.players[0], shoe);
-                    game_logic::stand(&mut players.dealer, shoe);
-                } else {
-                    if !players.players[0].all_hands_played {
-                        game_logic::double(&mut players.players[0]);
-                        game_logic::hit(&mut players.players[0], shoe);
-                    }
-                }
+                game_logic::double(&mut players.players[0]);
+                game_logic::hit(&mut players.players[0], shoe);
+                game_logic::stand(&mut players.dealer, shoe);
             }
             Event::KeyUp {
                 keycode: Some(Keycode::R),
                 ..
             } => {
-                if players.players[0].all_hands_played {
-                    if players.players[0].has_won
-                        || players.players[0].is_bust
-                        || players.dealer.has_won
-                        || players.players[0].has_checked
-                        || players.players[0].has_blackjack
-                    {
-                        return QuitOrDeal::DealAgain;
-                    }
+                if players.players[0].has_won
+                    || players.players[0].is_bust
+                    || players.dealer.has_won
+                    || players.players[0].has_checked
+                    || players.players[0].has_blackjack
+                {
+                    return QuitOrDeal::DealAgain;
                 }
             }
             Event::KeyUp {

@@ -60,7 +60,9 @@ impl Shoe {
                 };
 
                 for _k in 0..13 {
-                    if let Some(str) = get_img_src_for_card(Some(value), Some(suit)) {
+                    let img_src = get_img_src_for_card(Some(value), Some(suit));
+
+                    if let Some(str) = img_src {
                         path = str
                     }
 
@@ -83,20 +85,13 @@ impl Shoe {
             }
         }
 
-        // shuffle_cards(&mut deck);
+        shuffle_cards(&mut deck);
 
         Shoe { shoe: deck }
     }
 
     pub fn draw_card(&mut self) -> Card {
-        let mut card = self.shoe.pop().unwrap();
-        if self.shoe.len() < 298 {
-            card = self.shoe.pop().unwrap();
-        } else {
-            card = self.shoe[10].clone();
-            self.shoe.pop().unwrap();
-        }
-        card
+        self.shoe.pop().unwrap()
     }
 }
 

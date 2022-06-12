@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
     use crate::card_manager::{self, Card, Shoe, SpecialCards, Suit};
+    use crate::player_manager::{Players, self};
+    use crate::window_manager::WindowManager;
     use crate::game_logic;
-    use crate::player_manager::{self, Hand, Players};
-    use crate::window_manager::{self, WindowManager};
     extern crate rand;
 
     #[test]
@@ -144,8 +144,7 @@ mod tests {
         let mut shoe = Shoe::create_shoe();
         let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
 
-        players.players[0].bank_balance =
-            players.players[0].bank_balance - players.players[0].bet[0];
+        players.players[0].bank_balance = players.players[0].bank_balance - players.players[0].bet[0];
 
         assert_eq!(players.players[0].bank_balance, 180)
     }
@@ -345,5 +344,33 @@ mod tests {
         }
         assert_eq!(card_one, SpecialCards::King);
         assert_eq!(card_two, SpecialCards::King);
+    }
+
+    #[test]
+    fn play_with_split_hands() {
+        // Big ol function here
+        // Plan is to implement a mini game to handle all of the split hand logic
+        // Rendering might not work here!
+        
+        // Hand can be split so let's split it
+        let mut shoe = Shoe::create_shoe();
+        let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
+        players.deal_cards(&mut shoe, &(1000, 1000));
+
+        // Make sure the cards are the same so they can be split
+        // Set the coords to what they should be so the rendering can be tested too
+        
+        for i in 0..2 {
+            let coords = players.players[0].hands[0].hand[i].coords;
+            players.players[0].hands[0].hand[i] = shoe.shoe[10].clone();
+            players.players[0].hands[0].hand[i].coords = coords;
+        }
+
+        if player_manager::check_if_hand_can_be_split(&players.players[0].hands[0].hand) {
+            println!("so far so good")
+        }
+
+        println!("{:?}", players.players[0].hands);
+
     }
 }
