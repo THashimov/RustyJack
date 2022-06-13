@@ -34,11 +34,14 @@ fn main() {
             QuitOrDeal::KeepPlaying => {}
         }
 
-        game_logic::check_for_blackjack_and_bust(&mut players.players[0]);
-
-        if players.players[0].has_checked && !players.players[0].has_blackjack {
+        if !players.players[0].all_hands_played {
+            game_logic::check_for_blackjack_and_bust(&mut players.players[0]);
+        }
+        
+        if players.players[0].has_checked {
             game_logic::stand(&mut players.dealer, &mut shoe);
             game_logic::check_for_winner(&mut players);
+            players.players[0].has_checked = false;
         };
 
         if shoe.shoe.len() < 50 {

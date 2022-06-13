@@ -280,6 +280,32 @@ mod tests {
         assert_eq!(dealer.has_won, true)
     }
 
+    #[test] 
+    fn set_win_message() {
+        let mut shoe = Shoe::create_shoe();
+        let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
+        players.deal_cards(&mut shoe, &(1000, 1000));
+        players.dealer.hands[0].hand.push(shoe.draw_card());
+
+        players.dealer.hands[0].hand[0].value = 10;
+        players.dealer.hands[0].hand[1].value = 10;
+
+        players.players[0].hands[0].hand[0].value = 10;
+        players.players[0].hands[0].hand[0].value = 10;
+
+        players.players[0].has_checked = true;
+
+        game_logic::check_for_blackjack_and_bust(&mut players.players[0]);
+
+        if players.players[0].has_checked && !players.players[0].has_blackjack {
+            game_logic::stand(&mut players.dealer, &mut shoe);
+            game_logic::check_for_winner(&mut players);
+        };
+
+        assert_eq!(players.players[0].has_won, true);
+        assert_eq!(players.dealer.has_won, true);
+    }
+
     #[test]
     fn check_if_hand_can_be_split() {
         let mut shoe = Shoe::create_shoe();

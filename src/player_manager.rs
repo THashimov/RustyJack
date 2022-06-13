@@ -89,7 +89,7 @@ pub struct Player {
     pub has_blackjack: bool,
     pub has_finished_dealing: bool,
     // pub has_split: bool,
-    // pub all_hands_played: bool,
+    pub all_hands_played: bool,
 }
 
 impl Player {
@@ -109,7 +109,7 @@ impl Player {
             has_blackjack: false,
             has_finished_dealing: false,
             // has_split: false,
-            // all_hands_played: false,
+            all_hands_played: false,
         }
     }
 }

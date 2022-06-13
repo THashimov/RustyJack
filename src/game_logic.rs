@@ -1,3 +1,5 @@
+use sdl2::sys::SDL_UpdateWindowSurface;
+
 use crate::{
     card_manager::{Card, Shoe},
     player_manager::{self, Player, Players},
@@ -57,9 +59,8 @@ pub fn check_for_blackjack_and_bust(player: &mut Player) {
         player.has_blackjack = true;
         player.has_checked = true;
         player.has_won = true;
-    } else if get_hand_value(&player.hands[which_hand].hand) == 21 && !player.is_bust {
-        player.has_checked = true;
-    }
+        player.all_hands_played = true;
+    } 
 }
 
 pub fn change_aces(player: &mut Player) {
@@ -118,7 +119,7 @@ pub fn deal_again(players: &mut Players, shoe: &mut Shoe, window_size: &(u32, u3
         players.players[i].is_bust = false;
         players.players[i].can_change_bet = true;
         players.players[i].has_blackjack = false;
-        // players.players[i].all_hands_played = false;
+        players.players[i].all_hands_played = false;
     }
     players.players[0].bet[0] = 20;
 
@@ -146,12 +147,6 @@ pub fn stand(dealer: &mut Player, shoe: &mut Shoe) {
 }
 
 pub fn check_for_winner(players: &mut Players) {
-    if !player_manager::check_if_hand_can_be_split(&players.players[0].hands[0].hand) {
-        if players.players[0].has_blackjack {
-            players.players[0].bet[0] *= 2;
-            update_player_winnings(players);
-            players.players[0].has_blackjack = false;
-        } else {
             let player_hand_val = get_hand_value(&players.players[0].hands[0].hand);
             let dealer_hand_val = get_hand_value(&players.dealer.hands[0].hand);
 
@@ -163,23 +158,20 @@ pub fn check_for_winner(players: &mut Players) {
                 players.dealer.has_won = true;
             } else if player_hand_val == dealer_hand_val && !players.players[0].is_bust
                 || !players.dealer.is_bust
-            {
-                players.players[0].has_won = true;
+            {   players.players[0].has_won = true;
                 players.dealer.has_won = true;
             }
             update_player_winnings(players);
-        }
-    } else {
-    }
 }
 
 pub fn update_player_winnings(players: &mut Players) {
-    if players.players[0].has_won {
-        players.players[0].bank_balance += players.players[0].bet[0]
+    if players.players[0].has_won && players.players[0].has_blackjack  {
+        players.players[0].bank_balance += players.players[0].bet[0] * 2;    
     } else if players.dealer.has_won {
-        players.players[0].bank_balance -= players.players[0].bet[0]
-    } else if players.players[0].has_won && players.players[0].has_blackjack {
-        players.players[0].bank_balance += players.players[0].bet[0] * 2
+        players.players[0].bank_balance -= players.players[0].bet[0];
     } else if players.players[0].has_won && players.dealer.has_won {
+
+    } else if players.players[0].has_won {
+        players.players[0].bank_balance += players.players[0].bet[0];
     }
 }

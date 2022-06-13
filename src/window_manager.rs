@@ -238,17 +238,17 @@ impl WindowManager {
         }
     }
 
-    pub fn render_bust_or_win_text(&mut self, players: &Players, font: &Font) {
+    pub fn render_bust_or_win_text(&mut self, players: &mut Players, font: &Font) {
         let mut text = String::from(" ");
-        let player = &players.players[0];
+        let player = &mut players.players[0];
         
-        if players.players[0].hands.len() < 2 {
+        if player.hands.len() < 2 {
             if player.is_bust {
                 text = String::from("You went bust!")
             } else if player.has_won && !player.has_blackjack && !players.dealer.has_won {
                 text = String::from("You win!")
             } else if player.has_blackjack && player.has_won {
-                text = String::from("Blackjack!")
+                text = String::from("Blackjack!");
             } else if players.dealer.has_won && !player.has_won {
                 text = String::from("Dealer wins!")
             } else if players.dealer.has_won && player.has_won {
@@ -293,7 +293,7 @@ impl WindowManager {
         self.render_text(font, rect, &dealer_hand_val_string);
     }
 
-    pub fn refresh_screen(&mut self, players: &Players, font: &Font) {
+    pub fn refresh_screen(&mut self, players: &mut Players, font: &Font) {
         self.canvas.clear();
         self.load_background();
         self.render_cards(players);
@@ -301,7 +301,7 @@ impl WindowManager {
         self.render_updated_bank_ballance(&players.players[0], &font);
         self.render_updated_bet(&players.players[0], &font);
         self.render_instructions(font);
-        self.render_bust_or_win_text(&players, &font);
+        self.render_bust_or_win_text(players, &font);
         self.render_player_hand_value(&players, font);
         self.canvas.present();
     }

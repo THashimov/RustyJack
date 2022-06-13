@@ -35,17 +35,18 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::H),
                 ..
             } => {
+            if !players.players[0].is_bust && !players.players[0].has_won && !players.dealer.is_bust && !players.dealer.has_won {
                 players.players[0].can_change_bet = false;
                 game_logic::hit(&mut players.players[0], shoe);
             }
+        }
             Event::KeyUp {
                 keycode: Some(Keycode::C),
                 ..
             } => {
-                if !players.players[0].is_bust {
+                if !players.players[0].is_bust && !players.players[0].has_won && !players.dealer.is_bust && !players.dealer.has_won {
                     game_logic::stand(&mut players.dealer, shoe);
                     players.players[0].has_checked = true;
-                    game_logic::check_for_winner(players);
                 };
             }
             Event::KeyUp {
