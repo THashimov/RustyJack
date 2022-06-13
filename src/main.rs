@@ -21,7 +21,6 @@ fn main() {
     let mut players = Players::init_players_and_dealer(&mut shoe, &window.window_size);
     players.deal_cards(&mut shoe, &window.window_size);
 
-    // no test //
     'running: loop {
         match player_input_manager::check_for_key_press(
             &mut window.event_pump,

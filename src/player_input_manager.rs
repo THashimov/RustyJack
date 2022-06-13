@@ -53,9 +53,12 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::D),
                 ..
             } => {
-                game_logic::double(&mut players.players[0]);
-                game_logic::hit(&mut players.players[0], shoe);
-                game_logic::stand(&mut players.dealer, shoe);
+                if !players.players[0].is_bust && !players.players[0].has_won && !players.dealer.is_bust && !players.dealer.has_won {
+                    game_logic::hit(&mut players.players[0], shoe);
+                    players.players[0].has_checked = true;
+                    players.players[0].has_doubled = true;
+
+                }
             }
             Event::KeyUp {
                 keycode: Some(Keycode::R),

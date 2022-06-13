@@ -36,12 +36,6 @@ pub fn hit(player: &mut Player, shoe: &mut Shoe) {
     }
 }
 
-pub fn double(player: &mut Player) {
-    if !player.has_checked {
-        player.bet[0] *= 2
-    }
-}
-
 pub fn split(player: &mut Player, shoe: &mut Shoe) {
 
 }
@@ -120,6 +114,8 @@ pub fn deal_again(players: &mut Players, shoe: &mut Shoe, window_size: &(u32, u3
         players.players[i].can_change_bet = true;
         players.players[i].has_blackjack = false;
         players.players[i].all_hands_played = false;
+        players.players[i].has_doubled = false;
+
     }
     players.players[0].bet[0] = 20;
 
@@ -165,12 +161,17 @@ pub fn check_for_winner(players: &mut Players) {
 }
 
 pub fn update_player_winnings(players: &mut Players) {
+    println!("{}", players.players[0].has_doubled);
     if players.players[0].has_won && players.players[0].has_blackjack  {
         players.players[0].bank_balance += players.players[0].bet[0] * 2;    
-    } else if players.dealer.has_won {
+    } else if players.players[0].has_doubled && !players.players[0].has_won && players.dealer.has_won {
+        players.players[0].bank_balance -= players.players[0].bet[0] * 2;    
+    } else if players.players[0].has_doubled && players.players[0].has_won && !players.dealer.has_won {
+        players.players[0].bank_balance += players.players[0].bet[0] * 2; 
+    }
+     else if players.dealer.has_won {
         players.players[0].bank_balance -= players.players[0].bet[0];
     } else if players.players[0].has_won && players.dealer.has_won {
-
     } else if players.players[0].has_won {
         players.players[0].bank_balance += players.players[0].bet[0];
     }

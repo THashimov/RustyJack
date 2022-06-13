@@ -90,6 +90,7 @@ pub struct Player {
     pub has_finished_dealing: bool,
     // pub has_split: bool,
     pub all_hands_played: bool,
+    pub has_doubled: bool
 }
 
 impl Player {
@@ -110,6 +111,7 @@ impl Player {
             has_finished_dealing: false,
             // has_split: false,
             all_hands_played: false,
+            has_doubled: false,
         }
     }
 }
