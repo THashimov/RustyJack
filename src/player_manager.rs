@@ -42,6 +42,7 @@ impl Players {
         let start_point = self.players[0].window_size.0 - (space_between_players * 4);
         self.dealer.hands[0].hand[0].coords.0 = (self.players[0].window_size.0 / 2) - 40;
         self.players[0].hands[0].hand[0].coords.0 = start_point;
+        self.players[0].split_coords_point.0 = start_point;
 
         for i in 1..self.players.len() {
             self.players[i].hands[0].hand[0].coords.0 =
@@ -57,6 +58,8 @@ impl Players {
     pub fn set_initial_y_coords(&mut self, window_size: &(u32, u32)) {
         let dealer_y_coord = window_size.1 / 4;
         let player_y_coord = dealer_y_coord + dealer_y_coord * 2;
+        self.players[0].split_coords_point.1 = player_y_coord;
+
 
         self.dealer.hands[0].hand[0].coords.1 = dealer_y_coord;
 
@@ -79,6 +82,7 @@ pub struct Player {
     pub bank_balance: u32,
     pub hands: Vec<Hand>,
     pub window_size: (u32, u32),
+    pub split_coords_point: (u32, u32),
     pub which_hand_being_played: usize,
     pub can_change_bet: bool,
     pub has_checked: bool,
@@ -101,6 +105,7 @@ impl Player {
             hands,
             window_size: *window_size,
             which_hand_being_played: 0,
+            split_coords_point: (0, 0),
             can_change_bet: true,
             has_checked: false,
             is_bust: false,

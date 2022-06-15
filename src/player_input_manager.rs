@@ -16,6 +16,9 @@ pub fn check_for_key_press(
     players: &mut Players,
     shoe: &mut Shoe,
 ) -> QuitOrDeal {
+    let player = &mut players.players[0];
+    let dealer = &mut players.dealer;
+
     for event in event_pump.poll_iter() {
         match event {
             Event::Quit { .. }
@@ -26,60 +29,60 @@ pub fn check_for_key_press(
             Event::KeyUp {
                 keycode: Some(Keycode::Up),
                 ..
-            } => game_logic::increase_bet(&mut players.players[0]),
+            } => game_logic::increase_bet(player),
             Event::KeyUp {
                 keycode: Some(Keycode::Down),
                 ..
-            } => game_logic::decrease_bet(&mut players.players[0]),
+            } => game_logic::decrease_bet(player),
             Event::KeyUp {
                 keycode: Some(Keycode::H),
                 ..
             } => {
-                if !players.players[0].is_bust
-                    && !players.players[0].has_won
-                    && !players.dealer.is_bust
-                    && !players.dealer.has_won
+                if !player.is_bust
+                    && !player.has_won
+                    && !dealer.is_bust
+                    && !dealer.has_won
                 {
-                    players.players[0].can_change_bet = false;
-                    game_logic::hit(&mut players.players[0], shoe);
+                    player.can_change_bet = false;
+                    game_logic::hit(player, shoe);
                 }
             }
             Event::KeyUp {
                 keycode: Some(Keycode::C),
                 ..
             } => {
-                if !players.players[0].is_bust
-                    && !players.players[0].has_won
-                    && !players.dealer.is_bust
-                    && !players.dealer.has_won
+                if !player.is_bust
+                    && !player.has_won
+                    && !dealer.is_bust
+                    && !dealer.has_won
                 {
-                    game_logic::stand(&mut players.dealer, shoe);
-                    players.players[0].has_checked = true;
+                    game_logic::stand(dealer, shoe);
+                    player.has_checked = true;
                 };
             }
             Event::KeyUp {
                 keycode: Some(Keycode::D),
                 ..
             } => {
-                if !players.players[0].is_bust
-                    && !players.players[0].has_won
-                    && !players.dealer.is_bust
-                    && !players.dealer.has_won
+                if !player.is_bust
+                    && !player.has_won
+                    && !dealer.is_bust
+                    && !dealer.has_won
                 {
-                    game_logic::hit(&mut players.players[0], shoe);
-                    players.players[0].has_checked = true;
-                    players.players[0].has_doubled = true;
+                    game_logic::hit(player, shoe);
+                    player.has_checked = true;
+                    player.has_doubled = true;
                 }
             }
             Event::KeyUp {
                 keycode: Some(Keycode::R),
                 ..
             } => {
-                if players.players[0].has_won
-                    || players.players[0].is_bust
-                    || players.dealer.has_won
-                    || players.players[0].has_checked
-                    || players.players[0].has_blackjack
+                if player.has_won
+                    || player.is_bust
+                    || dealer.has_won
+                    || player.has_checked
+                    || player.has_blackjack
                 {
                     return QuitOrDeal::DealAgain;
                 }
@@ -88,10 +91,9 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::S),
                 ..
             } => {
-                if player_manager::check_if_hand_can_be_split(
-                    &players.players[0].hands[players.players[0].which_hand_being_played].hand,
-                ) {
-                    game_logic::split(&mut players.players[0], shoe);
+                if player_manager::check_if_hand_can_be_split(&player.hands[player.which_hand_being_played].hand) 
+                && player.hands.len() < 4 {
+                    game_logic::split(player, shoe);
                 }
             }
             _ => {}

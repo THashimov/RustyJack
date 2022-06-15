@@ -382,26 +382,56 @@ mod tests {
     fn main_split_function() {
         let mut shoe = Shoe::create_shoe();
         let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
-        let splittable_hand = create_splittable_hands();
-        let mut hand_two = create_splittable_hands();
+        players.deal_cards(&mut shoe, &(1000, 1000));
+        
+        let mut hand_two = vec![shoe.draw_card()];
+        hand_two.push(shoe.draw_card());
         
         let player = &mut players.players[0];
         let which_hand = player.which_hand_being_played;
 
-        player.hands = splittable_hand;
-
-        if player_manager::check_if_hand_can_be_split(&player.hands[which_hand].hand) {
-            split_logic::split_hands(&mut player.hands);
-            for i in 0..2 {
-                player.hands[i].hand.push(shoe.draw_card());
-                player.hands[i].hand[1] = hand_two[0].hand.pop().unwrap();
-            }
-        }
+        let split_hand = &split_logic::split_hands(&player.hands[which_hand], &mut shoe)[0];
+        player.hands.push(split_hand.clone());
+        
+        split_logic::change_coords_of_split_cards(player);
     }
 
     #[test]
-    fn change_coords_of_split_cards() {
-        let mut hands = create_splittable_hands();
+        fn change_coords_of_split_cards() {
+        let mut shoe = Shoe::create_shoe();
+        let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
+        players.deal_cards(&mut shoe, &(1000, 1000));
+        let player = &mut players.players[0];
+
+        let hands = &mut player.hands;
+
+        let point = player.split_coords_point;
+
+        let coords = vec![
+            (100, point.1 - 100), (300, point.1 - 100), (100, point.1 - 300), (300, point.1 - 300)];
+
+            
+        let x = create_splittable_hands();
+        
+        for i in 0..3 {
+            hands.push(x[0].clone())
+        };
+
+        for i in 0..hands.len() {
+                hands[i].hand[0].coords = coords[i];
+                hands[i].hand[1].coords = coords[i];
+                hands[i].hand[1].coords.0 += 20;
+                hands[i].hand[1].coords.1 -= 20;
+        }
+
+        assert_eq!(hands[0].hand[0].coords, (100, 650));
+        assert_eq!(hands[0].hand[1].coords, (120, 630));
+        assert_eq!(hands[1].hand[0].coords, (300, 650));
+        assert_eq!(hands[1].hand[1].coords, (320, 630));
+        assert_eq!(hands[2].hand[0].coords, (100, 450));
+        assert_eq!(hands[2].hand[1].coords, (120, 430));
+        assert_eq!(hands[3].hand[0].coords, (300, 450));
+        assert_eq!(hands[3].hand[1].coords, (320, 430));
     }
 
     #[test]
@@ -412,10 +442,8 @@ mod tests {
         assert_eq!(hands[0].hand[0].value, 10);
         assert_eq!(hands[0].hand[1].value, 10);
 
-        if player_manager::check_if_hand_can_be_split(&hands[0].hand) {
-            if let Some(card) = hands[0].hand.pop() {
-                hands.push(Hand { hand: vec![card] })
-            }
+        if let Some(card) = hands[0].hand.pop() {
+            hands.push(Hand { hand: vec![card] })
         }
 
         assert_eq!(hands[0].hand[0].value, 10);

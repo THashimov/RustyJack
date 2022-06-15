@@ -1,6 +1,6 @@
 use crate::{
     card_manager::{Card, Shoe},
-    player_manager::{self, Player, Players},
+    player_manager::{self, Player, Players}, split_logic,
 };
 
 pub fn increase_bet(player: &mut Player) {
@@ -54,7 +54,12 @@ pub fn stand(dealer: &mut Player, shoe: &mut Shoe) {
     }
 }
 
-pub fn split(player: &mut Player, shoe: &mut Shoe) {}
+pub fn split(player: &mut Player, shoe: &mut Shoe) {
+    let new_hands = split_logic::split_hands(&player.hands[player.which_hand_being_played], shoe);
+    player.hands.push(new_hands[0].clone());
+
+    split_logic::change_coords_of_split_cards(player);
+}
 
 pub fn check_for_blackjack_and_bust(player: &mut Player) {
     let which_hand = player.which_hand_being_played;
