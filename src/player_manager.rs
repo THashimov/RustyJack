@@ -6,7 +6,7 @@ pub struct Players {
     pub dealer: Player,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Hand {
     pub hand: Vec<Card>,
 }
@@ -16,7 +16,6 @@ impl Hand {
         Hand { hand: card }
     }
 }
-
 
 impl Players {
     pub fn init_players_and_dealer(shoe: &mut Shoe, window_size: &(u32, u32)) -> Players {
@@ -74,7 +73,6 @@ impl Players {
     }
 }
 
-
 #[derive(Debug)]
 pub struct Player {
     pub bet: [u32; 4],
@@ -88,9 +86,9 @@ pub struct Player {
     pub has_won: bool,
     pub has_blackjack: bool,
     pub has_finished_dealing: bool,
-    // pub has_split: bool,
+    pub has_split: bool,
     pub all_hands_played: bool,
-    pub has_doubled: bool
+    pub has_doubled: bool,
 }
 
 impl Player {
@@ -109,7 +107,7 @@ impl Player {
             has_won: false,
             has_blackjack: false,
             has_finished_dealing: false,
-            // has_split: false,
+            has_split: false,
             all_hands_played: false,
             has_doubled: false,
         }
@@ -117,8 +115,6 @@ impl Player {
 }
 
 pub fn check_if_hand_can_be_split(hand: &Vec<Card>) -> bool {
-    let hand = vec![&hand[0], &hand[1]];
-
     let mut card_one = SpecialCards::None;
     let mut card_two = SpecialCards::None;
 

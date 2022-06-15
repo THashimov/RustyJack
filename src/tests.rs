@@ -1,9 +1,17 @@
+use crate::{
+    card_manager::Shoe,
+    player_manager::{Hand, Players},
+};
+
 #[cfg(test)]
 mod tests {
     use crate::card_manager::{self, Card, Shoe, SpecialCards, Suit};
-    use crate::player_manager::{Players, self};
+    use crate::player_manager::{self, Hand, Players};
     use crate::window_manager::WindowManager;
-    use crate::game_logic;
+    use crate::{game_logic, split_logic};
+
+    use super::create_splittable_hands;
+
     extern crate rand;
 
     #[test]
@@ -144,7 +152,8 @@ mod tests {
         let mut shoe = Shoe::create_shoe();
         let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
 
-        players.players[0].bank_balance = players.players[0].bank_balance - players.players[0].bet[0];
+        players.players[0].bank_balance =
+            players.players[0].bank_balance - players.players[0].bet[0];
 
         assert_eq!(players.players[0].bank_balance, 180)
     }
@@ -155,12 +164,11 @@ mod tests {
         let mut players = Players::init_players_and_dealer(&mut shoe, &(0, 0));
 
         let which_hand = players.players[0].which_hand_being_played;
-        players.players[0].hands[which_hand]
+        for i in 0..2 {
+            players.players[0].hands[which_hand]
             .hand
             .push(shoe.draw_card());
-        players.players[0].hands[which_hand]
-            .hand
-            .push(shoe.draw_card());
+        }
 
         players.players[0].hands[which_hand].hand[0].value = 10;
         players.players[0].hands[which_hand].hand[1].value = 15;
@@ -280,7 +288,7 @@ mod tests {
         assert_eq!(dealer.has_won, true)
     }
 
-    #[test] 
+    #[test]
     fn set_win_message() {
         let mut shoe = Shoe::create_shoe();
         let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
@@ -308,22 +316,13 @@ mod tests {
 
     #[test]
     fn check_if_hand_can_be_split() {
-        let mut shoe = Shoe::create_shoe();
-        let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
-        players.deal_cards(&mut shoe, &(1000, 1000));
-
-        let which_hand = players.players[0].which_hand_being_played;
-
-        players.players[0].hands[which_hand].hand[0] = shoe.shoe[11].clone();
-        players.players[0].hands[which_hand].hand[1] = shoe.shoe[11].clone();
-
-        let hand = vec![
-            &players.players[0].hands[which_hand].hand[0],
-            &players.players[0].hands[which_hand].hand[1],
-        ];
+        let hand = create_splittable_hands();
+        let hand = &hand[0].hand;
 
         let mut card_one = SpecialCards::None;
         let mut card_two = SpecialCards::None;
+
+        let mut splittable = false;
 
         for i in 0..2 {
             let card: Vec<char> = hand[i].img_src.chars().collect();
@@ -368,35 +367,84 @@ mod tests {
                 }
             }
         }
-        assert_eq!(card_one, SpecialCards::King);
-        assert_eq!(card_two, SpecialCards::King);
+        if card_one == card_two {
+            splittable = true;
+        } else {
+            splittable = false;
+        }
+
+        assert_eq!(card_one, SpecialCards::Queen);
+        assert_eq!(card_two, SpecialCards::Queen);
+        assert_eq!(splittable, true);
     }
 
     #[test]
-    fn play_with_split_hands() {
-        // Big ol function here
-        // Plan is to implement a mini game to handle all of the split hand logic
-        // Rendering might not work here!
-        
-        // Hand can be split so let's split it
+    fn main_split_function() {
         let mut shoe = Shoe::create_shoe();
         let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
-        players.deal_cards(&mut shoe, &(1000, 1000));
-
-        // Make sure the cards are the same so they can be split
-        // Set the coords to what they should be so the rendering can be tested too
+        let splittable_hand = create_splittable_hands();
+        let mut hand_two = create_splittable_hands();
         
-        for i in 0..2 {
-            let coords = players.players[0].hands[0].hand[i].coords;
-            players.players[0].hands[0].hand[i] = shoe.shoe[10].clone();
-            players.players[0].hands[0].hand[i].coords = coords;
+        let player = &mut players.players[0];
+        let which_hand = player.which_hand_being_played;
+
+        player.hands = splittable_hand;
+
+        if player_manager::check_if_hand_can_be_split(&player.hands[which_hand].hand) {
+            split_logic::split_hands(&mut player.hands);
+            for i in 0..2 {
+                player.hands[i].hand.push(shoe.draw_card());
+                player.hands[i].hand[1] = hand_two[0].hand.pop().unwrap();
+            }
         }
-
-        if player_manager::check_if_hand_can_be_split(&players.players[0].hands[0].hand) {
-            println!("so far so good")
-        }
-
-        println!("{:?}", players.players[0].hands);
-
     }
+
+    #[test]
+    fn change_coords_of_split_cards() {
+        let mut hands = create_splittable_hands();
+    }
+
+    #[test]
+    fn split_hands() {
+        let mut hands = create_splittable_hands();
+        let mut new_cards = create_splittable_hands();
+
+        assert_eq!(hands[0].hand[0].value, 10);
+        assert_eq!(hands[0].hand[1].value, 10);
+
+        if player_manager::check_if_hand_can_be_split(&hands[0].hand) {
+            if let Some(card) = hands[0].hand.pop() {
+                hands.push(Hand { hand: vec![card] })
+            }
+        }
+
+        assert_eq!(hands[0].hand[0].value, 10);
+        assert_eq!(hands[1].hand[0].value, 10);
+
+        for i in 0..2 {
+            hands[i].hand.push(new_cards[0].hand.pop().unwrap());
+        }
+
+        assert_eq!(hands[0].hand[0].value, 10);
+        assert_eq!(hands[0].hand[1].value, 10);
+        assert_eq!(hands[1].hand[0].value, 10);
+        assert_eq!(hands[1].hand[1].value, 10);
+    }
+}
+
+fn create_splittable_hands() -> Vec<Hand> {
+    let mut shoe = Shoe::create_shoe();
+    let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
+    players.deal_cards(&mut shoe, &(1000, 1000));
+
+    let player = &mut players.players[0];
+
+    // Force hands to be the same
+    for i in 0..2 {
+        let coords = player.hands[0].hand[i].coords;
+        player.hands[0].hand[i] = shoe.shoe[10].clone();
+        player.hands[0].hand[i].coords = coords;
+    }
+
+    player.hands.clone()
 }

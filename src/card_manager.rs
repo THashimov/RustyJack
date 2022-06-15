@@ -85,13 +85,18 @@ impl Shoe {
             }
         }
 
-        shuffle_cards(&mut deck);
+        // shuffle_cards(&mut deck);
 
         Shoe { shoe: deck }
     }
 
     pub fn draw_card(&mut self) -> Card {
-        self.shoe.pop().unwrap()
+        let mut card = vec![];
+        if let Some(card_popped) = self.shoe.pop() {
+            card.push(card_popped)
+        } 
+
+        card.pop().unwrap()
     }
 }
 

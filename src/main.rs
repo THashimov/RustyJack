@@ -2,6 +2,7 @@ mod card_manager;
 mod game_logic;
 mod player_input_manager;
 mod player_manager;
+mod split_logic;
 mod tests;
 mod window_manager;
 
@@ -37,7 +38,7 @@ fn main() {
         if !players.players[0].all_hands_played {
             game_logic::check_for_blackjack_and_bust(&mut players.players[0]);
         }
-        
+
         if players.players[0].has_checked {
             game_logic::stand(&mut players.dealer, &mut shoe);
             game_logic::check_for_winner(&mut players);
@@ -48,7 +49,7 @@ fn main() {
             shoe = Shoe::create_shoe()
         }
         // if !players.players[0].has_split {
-            window.refresh_screen(&mut players, &font);
+        window.refresh_screen(&mut players, &font);
         // }
     }
 }

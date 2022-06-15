@@ -35,16 +35,24 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::H),
                 ..
             } => {
-            if !players.players[0].is_bust && !players.players[0].has_won && !players.dealer.is_bust && !players.dealer.has_won {
-                players.players[0].can_change_bet = false;
-                game_logic::hit(&mut players.players[0], shoe);
+                if !players.players[0].is_bust
+                    && !players.players[0].has_won
+                    && !players.dealer.is_bust
+                    && !players.dealer.has_won
+                {
+                    players.players[0].can_change_bet = false;
+                    game_logic::hit(&mut players.players[0], shoe);
+                }
             }
-        }
             Event::KeyUp {
                 keycode: Some(Keycode::C),
                 ..
             } => {
-                if !players.players[0].is_bust && !players.players[0].has_won && !players.dealer.is_bust && !players.dealer.has_won {
+                if !players.players[0].is_bust
+                    && !players.players[0].has_won
+                    && !players.dealer.is_bust
+                    && !players.dealer.has_won
+                {
                     game_logic::stand(&mut players.dealer, shoe);
                     players.players[0].has_checked = true;
                 };
@@ -53,11 +61,14 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::D),
                 ..
             } => {
-                if !players.players[0].is_bust && !players.players[0].has_won && !players.dealer.is_bust && !players.dealer.has_won {
+                if !players.players[0].is_bust
+                    && !players.players[0].has_won
+                    && !players.dealer.is_bust
+                    && !players.dealer.has_won
+                {
                     game_logic::hit(&mut players.players[0], shoe);
                     players.players[0].has_checked = true;
                     players.players[0].has_doubled = true;
-
                 }
             }
             Event::KeyUp {

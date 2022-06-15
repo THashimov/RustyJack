@@ -67,25 +67,25 @@ impl BalanceAndBet {
 
 pub struct InstructionText {
     coords: Rect,
-    text: String
+    text: String,
 }
 
 impl InstructionText {
     fn init_inst_location(y_coord: i32, text_height: i32) -> InstructionText {
         let text = String::new();
-        let coords = Rect::new(
-            10,
-            y_coord,
-            (text.len() * 10) as u32,
-            text_height as u32,
-            );
+        let coords = Rect::new(10, y_coord, (text.len() * 10) as u32, text_height as u32);
 
         InstructionText { coords, text }
     }
 
     fn change_width_of_rect(&mut self, text_height: u32) {
-        let rect = Rect::new(self.coords.x, self.coords.y, self.text.len() as u32 * 10, text_height); 
-        
+        let rect = Rect::new(
+            self.coords.x,
+            self.coords.y,
+            self.text.len() as u32 * 10,
+            text_height,
+        );
+
         self.coords = rect;
     }
 }
@@ -97,7 +97,7 @@ pub struct WindowManager {
     pub texture_creator: TextureCreator<WindowContext>,
     pub window_size: (u32, u32),
     pub balance_and_bet: BalanceAndBet,
-    win_or_lose_text_coords: Rect
+    win_or_lose_text_coords: Rect,
 }
 
 impl WindowManager {
@@ -108,7 +108,7 @@ impl WindowManager {
 
         let window = video_subsys
             .window("RustyJack", 800, 600)
-            // .fullscreen_desktop()
+            .fullscreen_desktop()
             .build()
             .unwrap();
 
@@ -129,7 +129,7 @@ impl WindowManager {
             texture_creator,
             window_size,
             balance_and_bet,
-            win_or_lose_text_coords
+            win_or_lose_text_coords,
         }
     }
 
@@ -177,19 +177,18 @@ impl WindowManager {
 
     pub fn render_text(&mut self, font: &Font, rect: Rect, text: &str) {
         let surface = font
-        .render(&text)
-        .blended(self.balance_and_bet.text_col)
-        .unwrap();
+            .render(&text)
+            .blended(self.balance_and_bet.text_col)
+            .unwrap();
 
         let texture = self
-        .texture_creator
-        .create_texture_from_surface(&surface)
-        .unwrap();
+            .texture_creator
+            .create_texture_from_surface(&surface)
+            .unwrap();
 
-        self.canvas
-        .copy(&texture, None, Some(rect))
-        .unwrap();
+        self.canvas.copy(&texture, None, Some(rect)).unwrap();
     }
+
     pub fn render_balance_and_bet_text(&mut self, font: &Font) {
         let balance = self.balance_and_bet.bank_balance_text.clone();
         let bet = self.balance_and_bet.bet_amount_text.clone();
@@ -214,11 +213,11 @@ impl WindowManager {
     }
 
     pub fn render_instructions(&mut self, font: &Font) {
-        let y_coord = self.balance_and_bet.y_coord + ((self.balance_and_bet.text_height * 2) + 20) as i32;
+        let y_coord =
+            self.balance_and_bet.y_coord + ((self.balance_and_bet.text_height * 2) + 20) as i32;
 
-        let mut inst_obj = 
+        let mut inst_obj =
             InstructionText::init_inst_location(y_coord, self.balance_and_bet.text_height as i32);
-        
 
         for i in 0..8 {
             match i {
@@ -234,14 +233,13 @@ impl WindowManager {
             inst_obj.change_width_of_rect(self.balance_and_bet.text_height);
             self.render_text(font, inst_obj.coords, &inst_obj.text);
             inst_obj.coords.y += self.balance_and_bet.text_height as i32;
-            
         }
     }
 
     pub fn render_bust_or_win_text(&mut self, players: &mut Players, font: &Font) {
         let mut text = String::from(" ");
         let player = &mut players.players[0];
-        
+
         if player.hands.len() < 2 {
             if player.is_bust {
                 text = String::from("You went bust!")
