@@ -94,7 +94,7 @@ impl Shoe {
         let mut card = vec![];
         if let Some(card_popped) = self.shoe.pop() {
             card.push(card_popped)
-        } 
+        }
 
         card.pop().unwrap()
     }

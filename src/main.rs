@@ -35,7 +35,7 @@ fn main() {
             QuitOrDeal::KeepPlaying => {}
         }
 
-        if !players.players[0].all_hands_played {
+        if !players.players[0].all_hands_played  {
             game_logic::check_for_blackjack_and_bust(&mut players.players[0]);
         }
 
@@ -48,8 +48,6 @@ fn main() {
         if shoe.shoe.len() < 50 {
             shoe = Shoe::create_shoe()
         }
-        // if !players.players[0].has_split {
         window.refresh_screen(&mut players, &font);
-        // }
     }
 }

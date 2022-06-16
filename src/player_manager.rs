@@ -60,7 +60,6 @@ impl Players {
         let player_y_coord = dealer_y_coord + dealer_y_coord * 2;
         self.players[0].split_coords_point.1 = player_y_coord;
 
-
         self.dealer.hands[0].hand[0].coords.1 = dealer_y_coord;
 
         for i in 0..self.players.len() {
@@ -83,12 +82,13 @@ pub struct Player {
     pub hands: Vec<Hand>,
     pub window_size: (u32, u32),
     pub split_coords_point: (u32, u32),
+    // pub which_hand_is_bust: [bool; 4],
     pub which_hand_being_played: usize,
     pub can_change_bet: bool,
     pub has_checked: bool,
-    pub is_bust: bool,
+    pub is_bust: [bool; 4],
     pub has_won: bool,
-    pub has_blackjack: bool,
+    pub has_blackjack: [bool; 4],
     pub has_finished_dealing: bool,
     pub has_split: bool,
     pub all_hands_played: bool,
@@ -106,11 +106,12 @@ impl Player {
             window_size: *window_size,
             which_hand_being_played: 0,
             split_coords_point: (0, 0),
+            // which_hand_is_bust: [false, false, false, false],
             can_change_bet: true,
             has_checked: false,
-            is_bust: false,
+            is_bust: [false, false, false, false],
             has_won: false,
-            has_blackjack: false,
+            has_blackjack: [false, false, false, false],
             has_finished_dealing: false,
             has_split: false,
             all_hands_played: false,

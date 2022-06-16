@@ -2,6 +2,7 @@ use crate::{
     card_manager::Shoe,
     game_logic,
     player_manager::{self, Players},
+    split_logic,
 };
 use sdl2::{event::Event, keyboard::Keycode, EventPump};
 
@@ -18,6 +19,7 @@ pub fn check_for_key_press(
 ) -> QuitOrDeal {
     let player = &mut players.players[0];
     let dealer = &mut players.dealer;
+    let which_hand = player.which_hand_being_played;
 
     for event in event_pump.poll_iter() {
         match event {
@@ -38,9 +40,9 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::H),
                 ..
             } => {
-                if !player.is_bust
+                if !player.is_bust[which_hand]
                     && !player.has_won
-                    && !dealer.is_bust
+                    && !dealer.is_bust[0]
                     && !dealer.has_won
                 {
                     player.can_change_bet = false;
@@ -51,10 +53,11 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::C),
                 ..
             } => {
-                if !player.is_bust
+                if !player.is_bust[which_hand]
                     && !player.has_won
-                    && !dealer.is_bust
+                    && !dealer.is_bust[0]
                     && !dealer.has_won
+                    && !player.has_split
                 {
                     game_logic::stand(dealer, shoe);
                     player.has_checked = true;
@@ -64,10 +67,11 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::D),
                 ..
             } => {
-                if !player.is_bust
+                if !player.is_bust[which_hand]
                     && !player.has_won
-                    && !dealer.is_bust
+                    && !dealer.is_bust[0]
                     && !dealer.has_won
+                    && !player.has_split
                 {
                     game_logic::hit(player, shoe);
                     player.has_checked = true;
@@ -78,22 +82,25 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::R),
                 ..
             } => {
-                if player.has_won
-                    || player.is_bust
-                    || dealer.has_won
-                    || player.has_checked
-                    || player.has_blackjack
-                {
-                    return QuitOrDeal::DealAgain;
+                if !player.has_split {
+                    if player.has_won
+                        || player.is_bust[0]
+                        || dealer.has_won
+                        || player.has_checked
+                        || player.has_blackjack[0]
+                    {
+                        return QuitOrDeal::DealAgain;
+                    }
                 }
             }
             Event::KeyUp {
                 keycode: Some(Keycode::S),
                 ..
             } => {
-                if player_manager::check_if_hand_can_be_split(&player.hands[player.which_hand_being_played].hand) 
-                && player.hands.len() < 4 {
+                // if player_manager::check_if_hand_can_be_split(&player.hands[player.which_hand_being_played].hand)
+                if player.hands.len() < 4 {
                     game_logic::split(player, shoe);
+                    player.has_split = true;
                 }
             }
             _ => {}
