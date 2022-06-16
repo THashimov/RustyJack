@@ -57,11 +57,18 @@ pub fn check_for_key_press(
                     && !player.has_won
                     && !dealer.is_bust[0]
                     && !dealer.has_won
-                    && !player.has_split
                 {
-                    game_logic::stand(dealer, shoe);
-                    player.has_checked = true;
-                };
+                    if !player.has_split {
+                        game_logic::stand(dealer, shoe);
+                        player.has_checked = true;
+                    } else {
+                        split_logic::change_hand_being_played(player);
+                        if player.all_hands_played {
+                            game_logic::stand(dealer, shoe);
+                            player.has_checked = true;
+                        }
+                    }
+                }
             }
             Event::KeyUp {
                 keycode: Some(Keycode::D),
@@ -82,15 +89,13 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::R),
                 ..
             } => {
-                if !player.has_split {
-                    if player.has_won
-                        || player.is_bust[0]
-                        || dealer.has_won
-                        || player.has_checked
-                        || player.has_blackjack[0]
-                    {
-                        return QuitOrDeal::DealAgain;
-                    }
+                if player.has_won
+                    || player.is_bust[0]
+                    || dealer.has_won
+                    || player.has_checked
+                    || player.has_blackjack[0]
+                {
+                    return QuitOrDeal::DealAgain;
                 }
             }
             Event::KeyUp {

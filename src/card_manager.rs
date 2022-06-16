@@ -85,7 +85,7 @@ impl Shoe {
             }
         }
 
-        // shuffle_cards(&mut deck);
+        shuffle_cards(&mut deck);
 
         Shoe { shoe: deck }
     }

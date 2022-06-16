@@ -1,6 +1,5 @@
 use crate::{
     card_manager::Shoe,
-    game_logic,
     player_manager::{Hand, Player},
 };
 
@@ -36,12 +35,13 @@ pub fn change_coords_of_split_cards(player: &mut Player) {
     }
 }
 
-pub fn change_hand_being_played(which_hand: usize) -> usize {
-    let overflow = which_hand.overflowing_sub(1);
-    if overflow.1 || which_hand == 0{
-        0
+pub fn change_hand_being_played(player: &mut Player) {
+    let overflow = player.which_hand_being_played.overflowing_sub(1);
+    if player.which_hand_being_played == 0 {
+        player.all_hands_played = true;
+    } else if overflow.1 {
+        player.which_hand_being_played = 0;
     } else {
-        overflow.0
+        player.which_hand_being_played = overflow.0;
     }
-
 }

@@ -1,6 +1,6 @@
 use crate::{
     card_manager::{Card, Shoe},
-    player_manager::{self, Player, Players},
+    player_manager::{self, Player, Players, Hand},
     split_logic,
 };
 
@@ -34,9 +34,11 @@ pub fn hit(player: &mut Player, shoe: &mut Shoe) {
         player.hands[which_hand].hand.push(card);
     }
 
-                            // // // // This needs a check guard // // // // 
-    if player.is_bust[which_hand] || get_hand_value(&player.hands[player.which_hand_being_played].hand) == 21 {
-        player.which_hand_being_played = split_logic::change_hand_being_played(which_hand);
+    // // // // This needs a check guard // // // //
+    if player.is_bust[which_hand]
+        || get_hand_value(&player.hands[player.which_hand_being_played].hand) == 21
+    {
+        split_logic::change_hand_being_played(player);
     }
 }
 
@@ -80,7 +82,7 @@ pub fn check_for_blackjack_and_bust(player: &mut Player) {
     if get_hand_value(&player.hands[which_hand].hand) > 21 && !player.is_bust[0] {
         player.is_bust[player.which_hand_being_played] = true;
         player.bank_balance -= player.bet[player.which_hand_being_played];
-        player.which_hand_being_played = split_logic::change_hand_being_played(which_hand);
+        split_logic::change_hand_being_played(player);
     } else if get_hand_value(&player.hands[which_hand].hand) == 21
         && player.hands[which_hand].hand.len() <= 2
     {
@@ -88,7 +90,7 @@ pub fn check_for_blackjack_and_bust(player: &mut Player) {
         player.has_checked = true;
         player.has_won = true;
         player.all_hands_played = true;
-        player.which_hand_being_played = split_logic::change_hand_being_played(which_hand);
+        split_logic::change_hand_being_played(player);
     }
 }
 
@@ -140,43 +142,46 @@ pub fn deal_again(players: &mut Players, shoe: &mut Shoe, window_size: &(u32, u3
     players.dealer.has_finished_dealing = false;
 
     for i in 0..players.players.len() {
-        players.players[i].bet[i] = 0;
-        players.players[i].hands[0].hand.drain(..);
-        players.players[i].hands[0].hand.push(shoe.draw_card());
-        players.players[i].has_won = false;
-        players.players[i].has_checked = false;
-        players.players[i].is_bust[i] = false;
-        players.players[i].can_change_bet = true;
-        players.players[i].has_blackjack[i] = false;
-        players.players[i].all_hands_played = false;
-        players.players[i].has_doubled = false;
+        for j in 0..players.players[0].hands.len() {
+            players.players[i].bet[i] = 0;
+            players.players[i].hands.clear();
+            players.players[i].hands.push(Hand { hand: vec![shoe.draw_card()]} );
+            players.players[i].has_won = false;
+            players.players[i].has_checked = false;
+            players.players[i].is_bust[i] = false;
+            players.players[i].can_change_bet = true;
+            players.players[i].has_blackjack[i] = false;
+            players.players[i].all_hands_played = false;
+            players.players[i].has_doubled = false;
+        }
     }
+
     players.players[0].bet[0] = 20;
 
     players.deal_cards(shoe, &window_size);
 }
 
 pub fn check_for_winner(players: &mut Players) {
-        let which_hand = players.players[0].which_hand_being_played;
-        let player_hand_val = get_hand_value(&players.players[0].hands[which_hand].hand);
-        let dealer_hand_val = get_hand_value(&players.dealer.hands[which_hand].hand);
+    let which_hand = players.players[0].which_hand_being_played;
+    let player_hand_val = get_hand_value(&players.players[0].hands[which_hand].hand);
+    let dealer_hand_val = get_hand_value(&players.dealer.hands[which_hand].hand);
 
-        if player_hand_val > dealer_hand_val && !players.players[0].is_bust[which_hand]
-            || players.dealer.is_bust[0]
-        {
-            players.players[0].has_won = true;
-            players.players[0].which_hand_being_played = split_logic::change_hand_being_played(which_hand);
-        } else if dealer_hand_val > player_hand_val && !players.dealer.is_bust[0] {
-            players.dealer.has_won = true;
-            players.players[0].which_hand_being_played = split_logic::change_hand_being_played(which_hand);
-        } else if player_hand_val == dealer_hand_val && !players.players[0].is_bust[which_hand]
-            || !players.dealer.is_bust[0]
-        {
-            players.players[0].has_won = true;
-            players.dealer.has_won = true;
-            players.players[0].which_hand_being_played = split_logic::change_hand_being_played(which_hand);
-        }
-        update_player_winnings(players);
+    if player_hand_val > dealer_hand_val && !players.players[0].is_bust[which_hand]
+        || players.dealer.is_bust[0]
+    {
+        players.players[0].has_won = true;
+        split_logic::change_hand_being_played(&mut players.players[0]);
+    } else if dealer_hand_val > player_hand_val && !players.dealer.is_bust[0] {
+        players.dealer.has_won = true;
+        split_logic::change_hand_being_played(&mut players.players[0]);
+    } else if player_hand_val == dealer_hand_val && !players.players[0].is_bust[which_hand]
+        || !players.dealer.is_bust[0]
+    {
+        players.players[0].has_won = true;
+        players.dealer.has_won = true;
+        split_logic::change_hand_being_played(&mut players.players[0]);
+    }
+    update_player_winnings(players);
 }
 
 pub fn update_player_winnings(players: &mut Players) {
