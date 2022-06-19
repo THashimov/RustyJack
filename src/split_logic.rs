@@ -1,6 +1,7 @@
 use crate::{
     card_manager::Shoe,
-    player_manager::{Hand, Player},
+    game_logic,
+    player_manager::{Hand, Player, Players},
 };
 
 pub fn split_hands(hands: &Hand, shoe: &mut Shoe) -> Vec<Hand> {
@@ -44,4 +45,27 @@ pub fn change_hand_being_played(player: &mut Player) {
     } else {
         player.which_hand_being_played = overflow.0;
     }
+}
+
+pub fn check_split_hands_for_win(players: &mut Players) {
+    let player = &mut players.players[0];
+    let dealer = &mut players.dealer;
+    let dealer_hand_val = game_logic::get_hand_value(&dealer.hands[0].hand);
+    let mut total_bet = 0;
+
+    for i in 0..player.hands.len() {
+        let player_hand_val = game_logic::get_hand_value(&player.hands[i].hand);
+        if player_hand_val > dealer_hand_val && !player.is_bust[i] {
+            player.bet[i] += player.bet[i]
+        } else if dealer_hand_val > player_hand_val && !player.is_bust[i] {
+            player.bet[i] -= player.bet[i]
+        }
+    }
+
+    for i in 0..player.bet.len() {
+        total_bet += player.bet[i]
+    }
+
+    player.bank_balance += total_bet;
+    
 }

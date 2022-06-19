@@ -188,21 +188,22 @@ mod tests {
         let mut shoe = Shoe::create_shoe();
         let mut players = Players::init_players_and_dealer(&mut shoe, &(0, 0));
         let which_hand = players.players[0].which_hand_being_played;
-        let hand = Hand { hand: vec![shoe.draw_card()] };
+        let hand = Hand {
+            hand: vec![shoe.draw_card()],
+        };
 
         for i in 0..players.players.len() {
             players.players[i].hands.push(hand.clone());
-        } 
+        }
 
         for i in 0..players.players.len() {
             for j in 0..players.players[0].hands.len() {
-            players.players[i].hands[j].hand.clear();
-            players.players[i].hands[j].hand.push(shoe.draw_card());
-        }
+                players.players[i].hands[j].hand.clear();
+                players.players[i].hands[j].hand.push(shoe.draw_card());
+            }
         }
 
-
-        players.players[0].has_won = false;
+        players.players[0].has_won[0] = false;
         players.players[0].is_bust[which_hand] = false;
         players.players[0].can_change_bet = true;
 
@@ -289,12 +290,12 @@ mod tests {
         if game_logic::get_hand_value(&player.hands[0].hand)
             > game_logic::get_hand_value(&dealer.hands[0].hand)
         {
-            player.has_won = true
+            player.has_won[0] = true
         } else {
-            dealer.has_won = true
+            dealer.has_won[0] = true
         }
 
-        assert_eq!(dealer.has_won, true)
+        assert_eq!(dealer.has_won[0], true)
     }
 
     // // // // Fails because cards are shuffled when the shoe is created. Passes in production // // // //
@@ -485,8 +486,73 @@ mod tests {
 
         assert_eq!(player.which_hand_being_played, 0);
     }
+
+    #[test]
+    fn check_split_hands_bets() {
+        let mut shoe = Shoe::create_shoe();
+        let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
+        players.deal_cards(&mut shoe, &(1000, 1000));
+        let hand = &create_splittable_hands()[0];
+        players.dealer.hands[0].hand.push(shoe.draw_card());
+
+        let player = &mut players.players[0];
+        let dealer = &mut players.dealer;
+
+        // Force 4 hands, with 2 cards, all have values of 10
+        for i in 0..3 {
+            player.hands.push(hand.clone());
+        }
+
+        // Force dealer to have 2 card, total hand value of 16
+        dealer.hands[0].hand[0].value = 10;
+        dealer.hands[0].hand[1].value = 6;
+
+        player.hands[0].hand[0].value = 2;
+        player.hands[0].hand[1].value = 2;
+
+        player.hands[1].hand[0].value = 10;
+        player.hands[1].hand[1].value = 10;
+
+        player.hands[2].hand[0].value = 2;
+        player.hands[2].hand[1].value = 2;
+
+        player.hands[3].hand[0].value = 2;
+        player.hands[3].hand[1].value = 2;
+
+        player.bet[0] = 20;
+        player.bet[1] = 20;
+        player.bet[2] = 20;
+        player.bet[3] = 20;
+
+        let dealer_hand_val = game_logic::get_hand_value(&dealer.hands[0].hand);
+
+        let mut total_bet = 0;
+        for i in 0..player.hands.len() {
+            let player_hand_val = game_logic::get_hand_value(&player.hands[i].hand);
+            if player_hand_val > dealer_hand_val && !player.is_bust[i] {
+                player.bet[i] += player.bet[i]
+            } else if dealer_hand_val > player_hand_val && !player.is_bust[i] {
+                player.bet[i] -= player.bet[i]
+            }
+        }
+
+        for i in 0..player.bet.len() {
+            total_bet += player.bet[i]
+        }
+
+        assert_eq!(player.bet[0], 0);
+        assert_eq!(player.bet[1], 40);
+        assert_eq!(player.bet[0], 0);
+        assert_eq!(player.bet[0], 0);
+        assert_eq!(total_bet, 40);
+
+        player.bank_balance += total_bet;
+
+        assert_eq!(player.bank_balance, 240);
+    }
 }
 
+// // // // Helpers // // // //
 fn change_hand_being_played(mut which_hand: usize) -> usize {
     let overflow = which_hand.overflowing_sub(1);
 

@@ -39,15 +39,23 @@ fn main() {
             game_logic::check_for_blackjack_and_bust(&mut players.players[0]);
         }
 
-        if players.players[0].has_checked {
-            game_logic::stand(&mut players.dealer, &mut shoe);
-            game_logic::check_for_winner(&mut players);
-            players.players[0].has_checked = false;
+        if players.players[0].all_hands_played {
+            if players.players[0].has_checked && !players.players[0].has_split {
+                game_logic::stand(&mut players.dealer, &mut shoe);
+                game_logic::check_for_winner(&mut players);
+                players.players[0].has_checked = false;
+            } else if players.players[0].has_checked && players.players[0].has_split {
+                game_logic::stand(&mut players.dealer, &mut shoe);
+                split_logic::check_split_hands_for_win(&mut players);
+                players.players[0].has_checked = false;
+            };
+            println!("H")
         };
 
         if shoe.shoe.len() < 50 {
             shoe = Shoe::create_shoe()
         }
+
         window.refresh_screen(&mut players, &font);
     }
 }

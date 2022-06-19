@@ -41,9 +41,9 @@ pub fn check_for_key_press(
                 ..
             } => {
                 if !player.is_bust[which_hand]
-                    && !player.has_won
+                    && !player.has_won[0]
                     && !dealer.is_bust[0]
-                    && !dealer.has_won
+                    && !dealer.has_won[0]
                 {
                     player.can_change_bet = false;
                     game_logic::hit(player, shoe);
@@ -54,9 +54,9 @@ pub fn check_for_key_press(
                 ..
             } => {
                 if !player.is_bust[which_hand]
-                    && !player.has_won
+                    && !player.has_won[0]
                     && !dealer.is_bust[0]
-                    && !dealer.has_won
+                    && !dealer.has_won[0]
                 {
                     if !player.has_split {
                         game_logic::stand(dealer, shoe);
@@ -75,25 +75,25 @@ pub fn check_for_key_press(
                 ..
             } => {
                 if !player.is_bust[which_hand]
-                    && !player.has_won
+                    && !player.has_won[0]
                     && !dealer.is_bust[0]
-                    && !dealer.has_won
+                    && !dealer.has_won[0]
                     && !player.has_split
                 {
                     game_logic::hit(player, shoe);
                     player.has_checked = true;
-                    player.has_doubled = true;
+                    player.has_doubled[which_hand] = true;
                 }
             }
             Event::KeyUp {
                 keycode: Some(Keycode::R),
                 ..
             } => {
-                if player.has_won
+                if player.has_won[0]
                     || player.is_bust[0]
-                    || dealer.has_won
-                    || player.has_checked
+                    || dealer.has_won[0] && player.has_checked
                     || player.has_blackjack[0]
+                    || player.all_hands_played
                 {
                     return QuitOrDeal::DealAgain;
                 }

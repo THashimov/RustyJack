@@ -108,7 +108,7 @@ impl WindowManager {
 
         let window = video_subsys
             .window("RustyJack", 800, 600)
-            .fullscreen_desktop()
+            // .fullscreen_desktop()
             .build()
             .unwrap();
 
@@ -243,13 +243,13 @@ impl WindowManager {
         if player.hands.len() < 2 {
             if player.is_bust[0] {
                 text = String::from("You went bust!")
-            } else if player.has_won && !player.has_blackjack[0] && !players.dealer.has_won {
+            } else if player.has_won[0] && !player.has_blackjack[0] && !players.dealer.has_won[0] {
                 text = String::from("You win!")
-            } else if player.has_blackjack[0] && player.has_won {
+            } else if player.has_blackjack[0] && player.has_won[0] {
                 text = String::from("Blackjack!");
-            } else if players.dealer.has_won && !player.has_won {
+            } else if players.dealer.has_won[0] && !player.has_won[0] {
                 text = String::from("Dealer wins!")
-            } else if players.dealer.has_won && player.has_won {
+            } else if players.dealer.has_won[0] && player.has_won[0] {
                 text = String::from("Push")
             }
         }

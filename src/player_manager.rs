@@ -86,12 +86,12 @@ pub struct Player {
     pub can_change_bet: bool,
     pub has_checked: bool,
     pub is_bust: [bool; 4],
-    pub has_won: bool,
+    pub has_won: [bool; 4],
     pub has_blackjack: [bool; 4],
     pub has_finished_dealing: bool,
     pub has_split: bool,
     pub all_hands_played: bool,
-    pub has_doubled: bool,
+    pub has_doubled: [bool; 4],
 }
 
 impl Player {
@@ -108,12 +108,12 @@ impl Player {
             can_change_bet: true,
             has_checked: false,
             is_bust: [false, false, false, false],
-            has_won: false,
+            has_won: [false, false, false, false],
             has_blackjack: [false, false, false, false],
             has_finished_dealing: false,
             has_split: false,
             all_hands_played: false,
-            has_doubled: false,
+            has_doubled: [false, false, false, false],
         }
     }
 }
