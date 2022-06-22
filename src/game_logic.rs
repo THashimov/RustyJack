@@ -72,6 +72,7 @@ pub fn split(player: &mut Player, shoe: &mut Shoe) {
     split_logic::change_coords_of_split_cards(player);
     player.which_hand_being_played += 1;
     player.bet[player.which_hand_being_played] = player.bet[0];
+    player.bank_balance -= player.bet[player.which_hand_being_played];
     player.has_split = true;
 }
 
@@ -166,6 +167,7 @@ pub fn deal_again(players: &mut Players, shoe: &mut Shoe, window_size: &(u32, u3
     }
 
     players.players[0].bet[0] = 20;
+    players.players[0].bank_balance -= 20;
 
     players.deal_cards(shoe, &window_size);
 }

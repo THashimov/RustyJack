@@ -488,7 +488,7 @@ mod tests {
     }
 
     #[test]
-    fn check_split_hands_bets() {
+    fn check_split_hands_for_win() {
         let mut shoe = Shoe::create_shoe();
         let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));
         players.deal_cards(&mut shoe, &(1000, 1000));

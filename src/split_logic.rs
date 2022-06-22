@@ -55,7 +55,7 @@ pub fn check_split_hands_for_win(players: &mut Players) {
 
     for i in 0..player.hands.len() {
         let player_hand_val = game_logic::get_hand_value(&player.hands[i].hand);
-        if player_hand_val > dealer_hand_val && !player.is_bust[i] {
+        if player_hand_val > dealer_hand_val && !player.is_bust[i] || dealer.is_bust[0] {
             player.bet[i] += player.bet[i]
         } else if dealer_hand_val > player_hand_val && !player.is_bust[i] {
             player.bet[i] -= player.bet[i]
@@ -67,5 +67,4 @@ pub fn check_split_hands_for_win(players: &mut Players) {
     }
 
     player.bank_balance += total_bet;
-    
 }
