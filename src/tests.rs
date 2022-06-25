@@ -507,8 +507,8 @@ mod tests {
         dealer.hands[0].hand[0].value = 10;
         dealer.hands[0].hand[1].value = 6;
 
-        player.hands[0].hand[0].value = 2;
-        player.hands[0].hand[1].value = 2;
+        player.hands[0].hand[0].value = 10;
+        player.hands[0].hand[1].value = 10;
 
         player.hands[1].hand[0].value = 10;
         player.hands[1].hand[1].value = 10;
@@ -540,15 +540,15 @@ mod tests {
             total_bet += player.bet[i]
         }
 
-        assert_eq!(player.bet[0], 0);
+        assert_eq!(player.bet[0], 40);
         assert_eq!(player.bet[1], 40);
-        assert_eq!(player.bet[0], 0);
-        assert_eq!(player.bet[0], 0);
-        assert_eq!(total_bet, 40);
+        assert_eq!(player.bet[2], 0);
+        assert_eq!(player.bet[3], 0);
+        assert_eq!(total_bet, 80);
 
         player.bank_balance += total_bet;
 
-        assert_eq!(player.bank_balance, 240);
+        assert_eq!(player.bank_balance, 280);
     }
 }
 

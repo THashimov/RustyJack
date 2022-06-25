@@ -35,11 +35,11 @@ pub fn hit(player: &mut Player, shoe: &mut Shoe) {
     }
 
     // // // // This needs a check guard // // // //
-    if player.is_bust[which_hand]
-        || get_hand_value(&player.hands[player.which_hand_being_played].hand) == 21
-    {
-        split_logic::change_hand_being_played(player);
-    }
+    // if player.is_bust[which_hand]
+    //     || get_hand_value(&player.hands[player.which_hand_being_played].hand) == 21
+    // {
+    //     split_logic::change_hand_being_played(player);
+    // }
 }
 
 pub fn stand(dealer: &mut Player, shoe: &mut Shoe) {
@@ -79,12 +79,12 @@ pub fn split(player: &mut Player, shoe: &mut Shoe) {
 pub fn check_for_blackjack_and_bust(player: &mut Player) {
     let which_hand = player.which_hand_being_played;
     change_aces(player);
-
-    if get_hand_value(&player.hands[which_hand].hand) > 21 {
+    let hand_val = get_hand_value(&player.hands[which_hand].hand); 
+    if hand_val > 21 {
         player.is_bust[player.which_hand_being_played] = true;
         player.bank_balance -= player.bet[player.which_hand_being_played];
         split_logic::change_hand_being_played(player);
-    } else if get_hand_value(&player.hands[which_hand].hand) == 21
+    } else if hand_val == 21
         && player.hands[which_hand].hand.len() <= 2
     {
         player.has_blackjack[which_hand] = true;

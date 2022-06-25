@@ -1,7 +1,7 @@
 use crate::{
     card_manager::Shoe,
     game_logic,
-    player_manager::{self, Players},
+    player_manager::Players,
     split_logic,
 };
 use sdl2::{event::Event, keyboard::Keycode, EventPump};
@@ -75,14 +75,17 @@ pub fn check_for_key_press(
                 ..
             } => {
                 if !player.is_bust[which_hand]
-                    && !player.has_won[0]
                     && !dealer.is_bust[0]
                     && !dealer.has_won[0]
-                    && !player.has_split
+                    && !player.all_hands_played
                 {
                     game_logic::hit(player, shoe);
-                    player.has_checked = true;
+                    split_logic::double_split_bet(player);
                     player.has_doubled[which_hand] = true;
+                    if player.all_hands_played {
+                        game_logic::stand(dealer, shoe);
+                        player.has_checked = true;
+                    }
                 }
             }
             Event::KeyUp {

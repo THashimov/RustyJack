@@ -53,12 +53,19 @@ pub fn check_split_hands_for_win(players: &mut Players) {
     let dealer_hand_val = game_logic::get_hand_value(&dealer.hands[0].hand);
     let mut total_bet = 0;
 
+    if dealer_hand_val > 21 {
+        dealer.is_bust[0] = true;
+    }
+
     for i in 0..player.hands.len() {
         let player_hand_val = game_logic::get_hand_value(&player.hands[i].hand);
+        if player_hand_val > 21 {
+            player.is_bust[i] = true;
+        }
         if player_hand_val > dealer_hand_val && !player.is_bust[i] || dealer.is_bust[0] {
             player.bet[i] += player.bet[i]
-        } else if dealer_hand_val > player_hand_val && !player.is_bust[i] {
-            player.bet[i] -= player.bet[i]
+        } else if dealer_hand_val > player_hand_val && !player.is_bust[i] || player.is_bust[i] {
+            player.bet[i] -= player.bet[i];
         }
     }
 
@@ -67,4 +74,14 @@ pub fn check_split_hands_for_win(players: &mut Players) {
     }
 
     player.bank_balance += total_bet;
+}
+
+pub fn double_split_bet(player: &mut Player) {
+    let which_hand = player.which_hand_being_played;
+
+    player.bank_balance -= player.bet[which_hand];
+
+    player.bet[which_hand] *= 2;
+
+    change_hand_being_played(player);
 }
