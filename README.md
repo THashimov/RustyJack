@@ -96,7 +96,7 @@ Once cloned and sdl2 is installed, run with cargo run.
     - [X] Double working correctly.
     - [X] Hand splitting.
     - [ ] Basic strategy hints.
-    - [ ] Card counting hints.
+    - [X] Card counting hints.
 - [ ] AI
     - [ ] Other players draw cards.
     - [ ] Other players play basic strategy. 
