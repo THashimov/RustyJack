@@ -11,14 +11,14 @@ use sdl2::{
 use crate::{
     card_manager::Shoe,
     game_logic,
-    player_manager::{Player, Players},
+    player_manager::{Player, Players, self},
 };
 
 const BACKGROUND_PATH: &str = "/home/mighty/projects/RustyJack/src/assets/table_img.png";
 
 pub struct ValueCoords {
-    x_coord: i32,
-    y_coord: i32,
+    pub x_coord: i32,
+    pub y_coord: i32,
 }
 
 impl ValueCoords {
@@ -121,11 +121,10 @@ pub struct WindowManager {
     pub texture_creator: TextureCreator<WindowContext>,
     pub window_size: (u32, u32),
     pub balance_and_bet: BalanceAndBet,
-    value_coords: ValueCoords,
+    pub value_coords: ValueCoords,
     win_or_lose_text_coords: Rect,
     pub show_counter: bool,
     pub show_hint: bool,
-    pub hint_str: String,
 }
 
 impl WindowManager {
@@ -136,7 +135,7 @@ impl WindowManager {
 
         let window = video_subsys
             .window("RustyJack", 800, 600)
-            .fullscreen_desktop()
+            // .fullscreen_desktop()
             .build()
             .unwrap();
 
@@ -166,7 +165,6 @@ impl WindowManager {
             win_or_lose_text_coords,
             show_counter: false,
             show_hint: false,
-            hint_str: String::new()
         }
     }
 
@@ -351,19 +349,19 @@ impl WindowManager {
         self.render_text(font, rect, &count_str);
     }
 
-    pub fn render_hint(&mut self, font: &Font) {
-        let hint_str = &self.hint_str.clone();
+    pub fn render_hint(&mut self, font: &Font, players: &mut Players) {
+        let hint_str = player_manager::return_hint(players);
 
         let rect = Rect::new(
             self.value_coords.x_coord,
             self.value_coords.y_coord + (self.balance_and_bet.text_height * 3) as i32 + 10,
-            (self.hint_str.len() * 10) as u32,
+            (hint_str.len() * 10) as u32,
             self.balance_and_bet.text_height,
         );
 
         println!("{}", hint_str);
 
-        self.render_text(font, rect, hint_str);
+        self.render_text(font, rect, &hint_str);
     }
     pub fn refresh_screen(&mut self, players: &mut Players, shoe: &Shoe, font: &Font) {
         self.canvas.clear();
@@ -379,7 +377,7 @@ impl WindowManager {
             self.render_count(shoe, font);
         }
         if self.show_hint {
-            self.render_hint(font)
+            self.render_hint(font, players)
         }
         self.canvas.present();
     }

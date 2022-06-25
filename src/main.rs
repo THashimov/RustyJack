@@ -69,9 +69,6 @@ fn main() {
             shoe = Shoe::create_shoe()
         }
 
-        let hint = player_manager::return_hint(&mut players);
-        window.hint_str = hint;
-
         window.refresh_screen(&mut players, &shoe, &font);
     }
 }

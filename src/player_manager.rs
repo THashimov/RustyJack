@@ -273,5 +273,7 @@ pub fn return_hint(players: &mut Players) -> String {
         }
     }
 
+    println!("hint: {}", hint);
+
     hint
 }
