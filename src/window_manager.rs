@@ -108,7 +108,7 @@ impl WindowManager {
 
         let window = video_subsys
             .window("RustyJack", 800, 600)
-            // .fullscreen_desktop()
+            .fullscreen_desktop()
             .build()
             .unwrap();
 

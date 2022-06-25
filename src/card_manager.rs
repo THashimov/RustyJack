@@ -1,6 +1,7 @@
 use rand::{prelude::SliceRandom, thread_rng};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
+#[allow(dead_code)]
 pub enum SpecialCards {
     Ten,
     Jack,

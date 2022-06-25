@@ -3,10 +3,11 @@ use crate::{
     player_manager::{Hand, Players},
 };
 
+#[allow(dead_code)]
 #[cfg(test)]
 mod tests {
-    use crate::card_manager::{self, Card, Shoe, SpecialCards, Suit};
-    use crate::player_manager::{self, Hand, Players};
+    use crate::card_manager::{self, Card, Shoe, Suit};
+    use crate::player_manager::{Hand, Players};
     use crate::tests::change_hand_being_played;
     use crate::window_manager::WindowManager;
     use crate::{game_logic, split_logic};
@@ -165,7 +166,7 @@ mod tests {
         let mut players = Players::init_players_and_dealer(&mut shoe, &(0, 0));
 
         let which_hand = players.players[0].which_hand_being_played;
-        for i in 0..2 {
+        for _i in 0..2 {
             players.players[0].hands[which_hand]
                 .hand
                 .push(shoe.draw_card());
@@ -406,7 +407,7 @@ mod tests {
 
         let x = create_splittable_hands();
 
-        for i in 0..3 {
+        for _i in 0..3 {
             hands.push(x[0].clone())
         }
 
@@ -499,7 +500,7 @@ mod tests {
         let dealer = &mut players.dealer;
 
         // Force 4 hands, with 2 cards, all have values of 10
-        for i in 0..3 {
+        for _i in 0..3 {
             player.hands.push(hand.clone());
         }
 
@@ -552,6 +553,7 @@ mod tests {
     }
 }
 
+#[allow(dead_code)]
 // // // // Helpers // // // //
 fn change_hand_being_played(mut which_hand: usize) -> usize {
     let overflow = which_hand.overflowing_sub(1);
@@ -564,6 +566,7 @@ fn change_hand_being_played(mut which_hand: usize) -> usize {
     }
 }
 
+#[allow(dead_code)]
 fn create_splittable_hands() -> Vec<Hand> {
     let mut shoe = Shoe::create_shoe();
     let mut players = Players::init_players_and_dealer(&mut shoe, &(1000, 1000));

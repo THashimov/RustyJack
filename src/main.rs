@@ -20,11 +20,9 @@ fn main() {
 
     let mut shoe = Shoe::create_shoe();
     let mut players = Players::init_players_and_dealer(&mut shoe, &window.window_size);
-    
+
     players.deal_cards(&mut shoe, &window.window_size);
 
-
-    let mut hand_val = [0, 0, 0, 0];
     'running: loop {
         match player_input_manager::check_for_key_press(
             &mut window.event_pump,
@@ -48,7 +46,7 @@ fn main() {
                 game_logic::check_for_winner(&mut players);
                 players.players[0].has_checked = false;
             } else if players.players[0].has_checked && players.players[0].has_split {
-                split_logic::check_split_hands_for_win(&mut players);
+                split_logic::check_split_hands_for_win_and_update_winnings(&mut players);
                 players.players[0].has_checked = false;
             };
         };
@@ -57,26 +55,6 @@ fn main() {
             shoe = Shoe::create_shoe()
         }
 
-        // if players.players[0].is_bust[players.players[0].which_hand_being_played]
-        // || game_logic::get_hand_value(&players.players[0].hands[players.players[0].which_hand_being_played].hand) == 21
-    // {
-        // split_logic::change_hand_being_played(&mut players.players[0]);
-    // }
-
         window.refresh_screen(&mut players, &font);
-
-        let h = players.players[0].which_hand_being_played;
-
-
-
-        if players.players[0].hands.len() == 4 {
-        for i in 0..hand_val.len() {
-            let v = game_logic::get_hand_value(&players.players[0].hands[i].hand);
-            hand_val[i] = v;
-        }
-    }
-        println!("hand {:?}", hand_val);
-        println!("bet {:?}", players.players[0].bet);
-        println!("{:?}", players.players[0].is_bust)
     }
 }

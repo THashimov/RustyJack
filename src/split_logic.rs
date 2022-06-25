@@ -47,7 +47,7 @@ pub fn change_hand_being_played(player: &mut Player) {
     }
 }
 
-pub fn check_split_hands_for_win(players: &mut Players) {
+pub fn check_split_hands_for_win_and_update_winnings(players: &mut Players) {
     let player = &mut players.players[0];
     let dealer = &mut players.dealer;
     let dealer_hand_val = game_logic::get_hand_value(&dealer.hands[0].hand);
