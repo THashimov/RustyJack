@@ -1,7 +1,7 @@
 use crate::{
     card_manager::Shoe,
     game_logic,
-    player_manager::{Players, self},
+    player_manager::{self, Players},
     split_logic,
 };
 use sdl2::{event::Event, keyboard::Keycode, EventPump};
@@ -11,7 +11,9 @@ pub enum KeyStroke {
     Quit,
     KeepPlaying,
     ShowCounter,
-    HideCounter
+    HideCounter,
+    ShowHint,
+    HideHint,
 }
 
 pub fn check_for_key_press(
@@ -54,15 +56,19 @@ pub fn check_for_key_press(
             Event::KeyDown {
                 keycode: Some(Keycode::Z),
                 ..
-            } => {
-                return KeyStroke::ShowCounter
-            }
+            } => return KeyStroke::ShowCounter,
             Event::KeyUp {
                 keycode: Some(Keycode::Z),
                 ..
-            } => {
-                return KeyStroke::HideCounter
-            },
+            } => return KeyStroke::HideCounter,
+            Event::KeyDown {
+                keycode: Some(Keycode::X),
+                ..
+            } => return KeyStroke::ShowHint,
+            Event::KeyUp {
+                keycode: Some(Keycode::X),
+                ..
+            } => return KeyStroke::HideHint,
             Event::KeyUp {
                 keycode: Some(Keycode::C),
                 ..
@@ -120,7 +126,9 @@ pub fn check_for_key_press(
                 keycode: Some(Keycode::S),
                 ..
             } => {
-                if player_manager::check_if_hand_can_be_split(&player.hands[player.which_hand_being_played].hand) {
+                if player_manager::check_if_hand_can_be_split(
+                    &player.hands[player.which_hand_being_played].hand,
+                ) {
                     game_logic::split(player, shoe);
                     player.has_split = true;
                 }

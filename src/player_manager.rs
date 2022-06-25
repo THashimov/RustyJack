@@ -1,4 +1,7 @@
-use crate::card_manager::{Card, Shoe, SpecialCards};
+use crate::{
+    card_manager::{Card, Shoe, SpecialCards},
+    game_logic::{self, get_hand_value},
+};
 
 #[derive(Debug)]
 pub struct Players {
@@ -173,4 +176,107 @@ pub fn check_if_hand_can_be_split(hand: &Vec<Card>) -> bool {
     } else {
         false
     }
+}
+
+pub fn return_hint(players: &mut Players) -> String {
+    let mut hint = String::new();
+    let player = &mut players.players[0];
+    let dealer = &mut players.dealer;
+    let which_hand = player.which_hand_being_played;
+
+    let player_hand = &player.hands[which_hand].hand;
+
+    let player_hand_val = get_hand_value(&player_hand);
+    let dealer_hand_val = dealer.hands[0].hand[0].value;
+
+    println!("{}", player_hand_val);
+    println!("{}", player.has_ace[which_hand]);
+
+
+
+    if player.hands[which_hand].hand[0] != player.hands[which_hand].hand[1] {
+        if !player.has_ace[player.which_hand_being_played] {
+            match player_hand_val {
+                5..=8 => hint = String::from("Hit"),
+                9 => match dealer_hand_val {
+                    3..=6 => hint = String::from("Double"),
+                    _ => hint = String::from("Hit"),
+                },
+                10 => match dealer_hand_val {
+                    2..=9 => hint = String::from("Double"),
+                    _ => hint = String::from("Hit"),
+                },
+                11 => match dealer_hand_val {
+                    2..=10 => hint = String::from("Double"),
+                    11 => hint = String::from("Hit"),
+                    _ => {}
+                },
+                12 => match dealer_hand_val {
+                    4..=6 => hint = String::from("Stand"),
+                    _ => hint = String::from("Hit"),
+                },
+                13..=16 => match dealer_hand_val {
+                    2..=6 => hint = String::from("Check"),
+                    _ => hint = String::from("Hit"),
+                },
+                17 => hint = String::from("Check"),
+                _ => {}
+            }
+        }
+
+        if player.has_ace[player.which_hand_being_played] {
+            match player_hand_val {
+                13..=14 => match dealer_hand_val {
+                    5..=6 => hint = String::from("Double"),
+                    _ => hint = String::from("Hit"),
+                },
+                15..=16 => match dealer_hand_val {
+                    4..=6 => hint = String::from("Double"),
+                    _ => hint = String::from("Hit"),
+                },
+                17 => match dealer_hand_val {
+                    3..=6 => hint = String::from("Double"),
+                    _ => hint = String::from("Hit"),
+                },
+                18 => match dealer_hand_val {
+                    3..=6 => hint = String::from("Double"),
+                    9..=11 => hint = String::from("Hit"),
+                    _ => hint = String::from("Check"),
+                },
+                _ => hint = String::from("Check"),
+            }
+        }
+    } else {
+        match player_hand_val {
+            4 | 6 => match dealer_hand_val {
+                2..=7 => hint = String::from("Split"),
+                _ => hint = String::from("Hit"),
+            },
+            8 => match dealer_hand_val {
+                5..=6 => hint = String::from("Split"),
+                _ => hint = String::from("Hit"),
+            },
+            10 => match dealer_hand_val {
+                2..=9 => hint = String::from("Double"),
+                _ => hint = String::from("Hit"),
+            },
+            12 => match dealer_hand_val {
+                2..=6 => hint = String::from("Split"),
+                _ => hint = String::from("Hit"),
+            },
+            14 => match dealer_hand_val {
+                2..=7 => hint = String::from("Split"),
+                _ => hint = String::from("Hit"),
+            },
+            16 => hint = String::from("Split"),
+            18 => match dealer_hand_val {
+                2..=6 | 8..=9 => hint = String::from("Split"),
+                _ => hint = String::from("Check"),
+            },
+            20 => hint = String::from("Check"),
+            _ => hint = String::from("Split"),
+        }
+    }
+
+    hint
 }

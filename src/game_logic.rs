@@ -175,7 +175,6 @@ pub fn check_for_winner(players: &mut Players) {
     let player = &mut players.players[0];
     let dealer = &mut players.dealer;
 
-
     if !dealer.is_bust[0] && !player.is_bust[0] && !player.has_blackjack[0] {
         if player_hand_val > dealer_hand_val {
             player.has_won[0] = true;
@@ -184,7 +183,7 @@ pub fn check_for_winner(players: &mut Players) {
         } else if player_hand_val == dealer_hand_val {
             player.has_won[0] = true;
             dealer.has_won[0] = true;
-        } 
+        }
     } else if player.is_bust[0] && !dealer.is_bust[0] {
         dealer.has_won[0] = true;
     } else if !player.is_bust[0] && dealer.is_bust[0] {
@@ -207,11 +206,9 @@ pub fn update_player_winnings(players: &mut Players) {
         // if balance reaches 0, end the game
         // Todo
         } else if player.has_won[0] && dealer.has_won[0] {
-
-        }   
+        }
     } else if player.has_blackjack[0] && get_hand_value(&dealer.hands[0].hand) != 21 {
         player.bank_balance += player.bet[0] * 2;
     } else {
-
     }
 }

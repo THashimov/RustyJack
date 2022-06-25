@@ -33,10 +33,11 @@ fn main() {
             KeyStroke::DealAgain => {
                 game_logic::deal_again(&mut players, &mut shoe, &window.window_size)
             }
-            KeyStroke::KeepPlaying => {},
-            KeyStroke::ShowCounter => {window.show_counter = true},
-            KeyStroke::HideCounter => {window.show_counter = false},
-
+            KeyStroke::KeepPlaying => {}
+            KeyStroke::ShowCounter => window.show_counter = true,
+            KeyStroke::HideCounter => window.show_counter = false,
+            KeyStroke::ShowHint => window.show_hint = true,
+            KeyStroke::HideHint => window.show_hint = false,
         }
 
         if !players.players[0].all_hands_played {
@@ -57,6 +58,9 @@ fn main() {
         if shoe.shoe.len() < 50 {
             shoe = Shoe::create_shoe()
         }
+
+        let hint = player_manager::return_hint(&mut players);
+        window.hint_str = hint;
 
         window.refresh_screen(&mut players, &shoe, &font);
     }

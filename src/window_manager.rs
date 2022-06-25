@@ -9,8 +9,9 @@ use sdl2::{
 };
 
 use crate::{
+    card_manager::Shoe,
     game_logic,
-    player_manager::{Player, Players}, card_manager::Shoe,
+    player_manager::{Player, Players},
 };
 
 const BACKGROUND_PATH: &str = "./src/assets/table_img.png";
@@ -21,7 +22,11 @@ pub struct ValueCoords {
 }
 
 impl ValueCoords {
-    fn new_val_coords(players: &Players, window_size: (u32, u32), balance_and_bet: &BalanceAndBet) -> ValueCoords {
+    fn new_val_coords(
+        players: &Players,
+        window_size: (u32, u32),
+        balance_and_bet: &BalanceAndBet,
+    ) -> ValueCoords {
         let player = &players.players[0];
         let mut player_hand_val_string = String::from("Hand value: ");
         let player_hand_val =
@@ -119,6 +124,8 @@ pub struct WindowManager {
     value_coords: ValueCoords,
     win_or_lose_text_coords: Rect,
     pub show_counter: bool,
+    pub show_hint: bool,
+    pub hint_str: String,
 }
 
 impl WindowManager {
@@ -129,7 +136,7 @@ impl WindowManager {
 
         let window = video_subsys
             .window("RustyJack", 800, 600)
-            .fullscreen_desktop()
+            // .fullscreen_desktop()
             .build()
             .unwrap();
 
@@ -141,7 +148,10 @@ impl WindowManager {
 
         let win_or_lose_text_coords = Rect::new(0, 0, 0, 0);
 
-        let value_coords = ValueCoords { x_coord: 0, y_coord: 0 };
+        let value_coords = ValueCoords {
+            x_coord: 0,
+            y_coord: 0,
+        };
 
         canvas.clear();
 
@@ -154,7 +164,9 @@ impl WindowManager {
             balance_and_bet,
             value_coords,
             win_or_lose_text_coords,
-            show_counter: false
+            show_counter: false,
+            show_hint: false,
+            hint_str: String::new(),
         }
     }
 
@@ -203,8 +215,12 @@ impl WindowManager {
     pub fn render_text(&mut self, font: &Font, rect: Rect, text: &str) {
         let surface = font
             .render(&text)
-            .blended(self.balance_and_bet.text_col)
-            .unwrap();
+            .blended(self.balance_and_bet.text_col);
+
+        let surface = match surface {
+            Ok(surface) => surface,
+            Err(error) => panic!("failed to render text")
+        };
 
         let texture = self
             .texture_creator
@@ -244,7 +260,7 @@ impl WindowManager {
         let mut inst_obj =
             InstructionText::init_inst_location(y_coord, self.balance_and_bet.text_height as i32);
 
-        for i in 0..8 {
+        for i in 0..9 {
             match i {
                 0 => inst_obj.text = String::from("Up Arrow - Increase Bet"),
                 1 => inst_obj.text = String::from("Down Arrow - Decrease Bet"),
@@ -254,6 +270,7 @@ impl WindowManager {
                 5 => inst_obj.text = String::from("S - Split"),
                 6 => inst_obj.text = String::from("R - Deal Again"),
                 7 => inst_obj.text = String::from("Z - Show Counter"),
+                8 => inst_obj.text = String::from("X - Strategy Hint"),
                 _ => {}
             }
             inst_obj.change_width_of_rect(self.balance_and_bet.text_height);
@@ -291,18 +308,19 @@ impl WindowManager {
     }
 
     pub fn render_player_and_dealer_hand_value(&mut self, players: &Players, font: &Font) {
-        let val_cords_obj = ValueCoords::new_val_coords(players, self.window_size, &self.balance_and_bet);
+        let val_cords_obj =
+            ValueCoords::new_val_coords(players, self.window_size, &self.balance_and_bet);
 
         self.value_coords.x_coord = val_cords_obj.x_coord;
         self.value_coords.y_coord = val_cords_obj.y_coord;
 
         let player = &players.players[0];
         let which_hand = player.which_hand_being_played;
-        
+
         let player_hand_val = game_logic::get_hand_value(&player.hands[which_hand].hand);
         let mut player_hand_val_string = String::from("Hand value: ");
         player_hand_val_string.push_str(&player_hand_val.to_string());
-         
+
         let mut dealer_hand_val_string = String::from("Dealer hand value: ");
         let dealer_hand_val = game_logic::get_hand_value(&players.dealer.hands[0].hand);
         dealer_hand_val_string.push_str(&dealer_hand_val.to_string());
@@ -310,7 +328,7 @@ impl WindowManager {
         let mut rect = Rect::new(
             val_cords_obj.x_coord,
             val_cords_obj.y_coord,
-            (player_hand_val_string.len() * 10) as u32,
+            (player_hand_val_string.len() * 15) as u32,
             self.balance_and_bet.text_height,
         );
 
@@ -333,7 +351,19 @@ impl WindowManager {
         self.render_text(font, rect, &count_str);
     }
 
-    pub fn refresh_screen(&mut self, players: &mut Players, shoe: &Shoe, font: &Font, ) {
+    pub fn render_hint(&mut self, font: &Font) {
+        let hint_str = self.hint_str.clone();
+
+        let rect = Rect::new(
+            self.value_coords.x_coord,
+            self.value_coords.y_coord + (self.balance_and_bet.text_height * 3) as i32 + 10,
+            (self.hint_str.len() * 10) as u32,
+            self.balance_and_bet.text_height,
+        );
+
+        self.render_text(font, rect, &hint_str);
+    }
+    pub fn refresh_screen(&mut self, players: &mut Players, shoe: &Shoe, font: &Font) {
         self.canvas.clear();
         self.load_background();
         self.render_cards(players);
@@ -345,6 +375,9 @@ impl WindowManager {
         self.render_player_and_dealer_hand_value(&players, font);
         if self.show_counter {
             self.render_count(shoe, font);
+        }
+        if self.show_hint {
+            self.render_hint(font)
         }
         self.canvas.present();
     }
