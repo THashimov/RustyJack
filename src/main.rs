@@ -7,7 +7,7 @@ mod tests;
 mod window_manager;
 
 use card_manager::Shoe;
-use player_input_manager::QuitOrDeal;
+use player_input_manager::KeyStroke;
 use player_manager::Players;
 use window_manager::WindowManager;
 
@@ -29,11 +29,14 @@ fn main() {
             &mut players,
             &mut shoe,
         ) {
-            QuitOrDeal::Quit => break 'running,
-            QuitOrDeal::DealAgain => {
+            KeyStroke::Quit => break 'running,
+            KeyStroke::DealAgain => {
                 game_logic::deal_again(&mut players, &mut shoe, &window.window_size)
             }
-            QuitOrDeal::KeepPlaying => {}
+            KeyStroke::KeepPlaying => {},
+            KeyStroke::ShowCounter => {window.show_counter = true},
+            KeyStroke::HideCounter => {window.show_counter = false},
+
         }
 
         if !players.players[0].all_hands_played {

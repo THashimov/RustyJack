@@ -6,17 +6,19 @@ use crate::{
 };
 use sdl2::{event::Event, keyboard::Keycode, EventPump};
 
-pub enum QuitOrDeal {
+pub enum KeyStroke {
     DealAgain,
     Quit,
     KeepPlaying,
+    ShowCounter,
+    HideCounter
 }
 
 pub fn check_for_key_press(
     event_pump: &mut EventPump,
     players: &mut Players,
     shoe: &mut Shoe,
-) -> QuitOrDeal {
+) -> KeyStroke {
     let player = &mut players.players[0];
     let dealer = &mut players.dealer;
     let which_hand = player.which_hand_being_played;
@@ -27,7 +29,7 @@ pub fn check_for_key_press(
             | Event::KeyDown {
                 keycode: Some(Keycode::Escape),
                 ..
-            } => return QuitOrDeal::Quit,
+            } => return KeyStroke::Quit,
             Event::KeyUp {
                 keycode: Some(Keycode::Up),
                 ..
@@ -49,6 +51,18 @@ pub fn check_for_key_press(
                     game_logic::hit(player, shoe);
                 }
             }
+            Event::KeyDown {
+                keycode: Some(Keycode::Z),
+                ..
+            } => {
+                return KeyStroke::ShowCounter
+            }
+            Event::KeyUp {
+                keycode: Some(Keycode::Z),
+                ..
+            } => {
+                return KeyStroke::HideCounter
+            },
             Event::KeyUp {
                 keycode: Some(Keycode::C),
                 ..
@@ -99,7 +113,7 @@ pub fn check_for_key_press(
                     || player.has_blackjack[0]
                     || player.all_hands_played
                 {
-                    return QuitOrDeal::DealAgain;
+                    return KeyStroke::DealAgain;
                 }
             }
             Event::KeyUp {
@@ -114,5 +128,5 @@ pub fn check_for_key_press(
             _ => {}
         }
     }
-    return QuitOrDeal::KeepPlaying;
+    return KeyStroke::KeepPlaying;
 }

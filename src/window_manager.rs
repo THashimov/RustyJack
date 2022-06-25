@@ -118,6 +118,7 @@ pub struct WindowManager {
     pub balance_and_bet: BalanceAndBet,
     value_coords: ValueCoords,
     win_or_lose_text_coords: Rect,
+    pub show_counter: bool,
 }
 
 impl WindowManager {
@@ -153,6 +154,7 @@ impl WindowManager {
             balance_and_bet,
             value_coords,
             win_or_lose_text_coords,
+            show_counter: false
         }
     }
 
@@ -251,6 +253,7 @@ impl WindowManager {
                 4 => inst_obj.text = String::from("D - Double"),
                 5 => inst_obj.text = String::from("S - Split"),
                 6 => inst_obj.text = String::from("R - Deal Again"),
+                7 => inst_obj.text = String::from("Z - Show Counter"),
                 _ => {}
             }
             inst_obj.change_width_of_rect(self.balance_and_bet.text_height);
@@ -322,7 +325,7 @@ impl WindowManager {
 
         let rect = Rect::new(
             self.value_coords.x_coord,
-            self.value_coords.y_coord + (self.balance_and_bet.text_height * 2) as i32,
+            self.value_coords.y_coord + (self.balance_and_bet.text_height * 2) as i32 + 10,
             (count_str.len() * 10) as u32,
             self.balance_and_bet.text_height,
         );
@@ -330,7 +333,7 @@ impl WindowManager {
         self.render_text(font, rect, &count_str);
     }
 
-    pub fn refresh_screen(&mut self, players: &mut Players, shoe: &Shoe, font: &Font) {
+    pub fn refresh_screen(&mut self, players: &mut Players, shoe: &Shoe, font: &Font, ) {
         self.canvas.clear();
         self.load_background();
         self.render_cards(players);
@@ -340,7 +343,9 @@ impl WindowManager {
         self.render_instructions(font);
         self.render_bust_or_win_text(players, &font);
         self.render_player_and_dealer_hand_value(&players, font);
-        self.render_count(shoe, font);
+        if self.show_counter {
+            self.render_count(shoe, font);
+        }
         self.canvas.present();
     }
 }
