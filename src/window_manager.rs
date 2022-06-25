@@ -10,11 +10,30 @@ use sdl2::{
 
 use crate::{
     game_logic,
-    player_manager::{Player, Players},
+    player_manager::{Player, Players}, card_manager::Shoe,
 };
 
 const BACKGROUND_PATH: &str = "./src/assets/table_img.png";
 
+pub struct ValueCoords {
+    x_coord: i32,
+    y_coord: i32,
+}
+
+impl ValueCoords {
+    fn new_val_coords(players: &Players, window_size: (u32, u32), balance_and_bet: &BalanceAndBet) -> ValueCoords {
+        let player = &players.players[0];
+        let mut player_hand_val_string = String::from("Hand value: ");
+        let player_hand_val =
+            game_logic::get_hand_value(&player.hands[player.which_hand_being_played].hand);
+        player_hand_val_string.push_str(&player_hand_val.to_string());
+
+        let x_coord = (window_size.0 - player_hand_val_string.len() as u32 * 20) as i32 + 7;
+        let y_coord = balance_and_bet.y_coord;
+
+        ValueCoords { x_coord, y_coord }
+    }
+}
 pub struct BalanceAndBet {
     pub text_height: u32,
     pub x_coord: i32,
@@ -97,6 +116,7 @@ pub struct WindowManager {
     pub texture_creator: TextureCreator<WindowContext>,
     pub window_size: (u32, u32),
     pub balance_and_bet: BalanceAndBet,
+    value_coords: ValueCoords,
     win_or_lose_text_coords: Rect,
 }
 
@@ -120,6 +140,8 @@ impl WindowManager {
 
         let win_or_lose_text_coords = Rect::new(0, 0, 0, 0);
 
+        let value_coords = ValueCoords { x_coord: 0, y_coord: 0 };
+
         canvas.clear();
 
         WindowManager {
@@ -129,6 +151,7 @@ impl WindowManager {
             texture_creator,
             window_size,
             balance_and_bet,
+            value_coords,
             win_or_lose_text_coords,
         }
     }
@@ -264,24 +287,26 @@ impl WindowManager {
         self.render_text(font, self.win_or_lose_text_coords, &text);
     }
 
-    pub fn render_player_hand_value(&mut self, players: &Players, font: &Font) {
+    pub fn render_player_and_dealer_hand_value(&mut self, players: &Players, font: &Font) {
+        let val_cords_obj = ValueCoords::new_val_coords(players, self.window_size, &self.balance_and_bet);
+
+        self.value_coords.x_coord = val_cords_obj.x_coord;
+        self.value_coords.y_coord = val_cords_obj.y_coord;
+
         let player = &players.players[0];
-
+        let which_hand = player.which_hand_being_played;
+        
+        let player_hand_val = game_logic::get_hand_value(&player.hands[which_hand].hand);
         let mut player_hand_val_string = String::from("Hand value: ");
-        let player_hand_val =
-            game_logic::get_hand_value(&player.hands[player.which_hand_being_played].hand);
         player_hand_val_string.push_str(&player_hand_val.to_string());
-
+         
         let mut dealer_hand_val_string = String::from("Dealer hand value: ");
         let dealer_hand_val = game_logic::get_hand_value(&players.dealer.hands[0].hand);
         dealer_hand_val_string.push_str(&dealer_hand_val.to_string());
 
-        let x = (self.window_size.0 - player_hand_val_string.len() as u32 * 20) as i32 + 7;
-        let y = self.balance_and_bet.y_coord;
-
         let mut rect = Rect::new(
-            x,
-            y,
+            val_cords_obj.x_coord,
+            val_cords_obj.y_coord,
             (player_hand_val_string.len() * 10) as u32,
             self.balance_and_bet.text_height,
         );
@@ -291,7 +316,21 @@ impl WindowManager {
         self.render_text(font, rect, &dealer_hand_val_string);
     }
 
-    pub fn refresh_screen(&mut self, players: &mut Players, font: &Font) {
+    fn render_count(&mut self, shoe: &Shoe, font: &Font) {
+        let mut count_str = String::from("Count: ");
+        count_str.push_str(&shoe.count.to_string());
+
+        let rect = Rect::new(
+            self.value_coords.x_coord,
+            self.value_coords.y_coord + (self.balance_and_bet.text_height * 2) as i32,
+            (count_str.len() * 10) as u32,
+            self.balance_and_bet.text_height,
+        );
+
+        self.render_text(font, rect, &count_str);
+    }
+
+    pub fn refresh_screen(&mut self, players: &mut Players, shoe: &Shoe, font: &Font) {
         self.canvas.clear();
         self.load_background();
         self.render_cards(players);
@@ -300,7 +339,8 @@ impl WindowManager {
         self.render_updated_bet(&players.players[0], &font);
         self.render_instructions(font);
         self.render_bust_or_win_text(players, &font);
-        self.render_player_hand_value(&players, font);
+        self.render_player_and_dealer_hand_value(&players, font);
+        self.render_count(shoe, font);
         self.canvas.present();
     }
 }

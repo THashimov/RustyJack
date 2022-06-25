@@ -55,6 +55,6 @@ fn main() {
             shoe = Shoe::create_shoe()
         }
 
-        window.refresh_screen(&mut players, &font);
+        window.refresh_screen(&mut players, &shoe, &font);
     }
 }

@@ -94,7 +94,7 @@ Once cloned and sdl2 is installed, run with cargo run.
     - [X] Player can play against the dealer.
     - [X] Blackjack ends the round. 
     - [X] Double working correctly.
-    - [ ] Hand splitting.
+    - [X] Hand splitting.
     - [ ] Basic strategy hints.
     - [ ] Card counting hints.
 - [ ] AI

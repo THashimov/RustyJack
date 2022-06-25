@@ -30,6 +30,7 @@ pub struct Card {
 #[derive(Debug)]
 pub struct Shoe {
     pub shoe: Vec<Card>,
+    pub count: i32
 }
 
 impl Card {
@@ -88,7 +89,7 @@ impl Shoe {
 
         shuffle_cards(&mut deck);
 
-        Shoe { shoe: deck }
+        Shoe { shoe: deck , count: 0}
     }
 
     pub fn draw_card(&mut self) -> Card {
@@ -97,6 +98,11 @@ impl Shoe {
             card.push(card_popped)
         }
 
+        match card[0].value {
+            2..=6 => {self.count += 1},
+            10..=14 => {self.count -= 1},
+            _ => {}
+        }
         card.pop().unwrap()
     }
 }
