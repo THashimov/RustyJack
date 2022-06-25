@@ -10,10 +10,8 @@ pub enum KeyStroke {
     DealAgain,
     Quit,
     KeepPlaying,
-    ShowCounter,
-    HideCounter,
-    ShowHint,
-    HideHint,
+    Counter,
+    Hint,
 }
 
 pub fn check_for_key_press(
@@ -56,19 +54,11 @@ pub fn check_for_key_press(
             Event::KeyDown {
                 keycode: Some(Keycode::Z),
                 ..
-            } => return KeyStroke::ShowCounter,
-            Event::KeyUp {
-                keycode: Some(Keycode::Z),
-                ..
-            } => return KeyStroke::HideCounter,
+            } => return KeyStroke::Counter,
             Event::KeyDown {
                 keycode: Some(Keycode::X),
                 ..
-            } => return KeyStroke::ShowHint,
-            Event::KeyUp {
-                keycode: Some(Keycode::X),
-                ..
-            } => return KeyStroke::HideHint,
+            } => return KeyStroke::Hint,
             Event::KeyUp {
                 keycode: Some(Keycode::C),
                 ..

@@ -189,11 +189,6 @@ pub fn return_hint(players: &mut Players) -> String {
     let player_hand_val = get_hand_value(&player_hand);
     let dealer_hand_val = dealer.hands[0].hand[0].value;
 
-    println!("{}", player_hand_val);
-    println!("{}", player.has_ace[which_hand]);
-
-
-
     if player.hands[which_hand].hand[0] != player.hands[which_hand].hand[1] {
         if !player.has_ace[player.which_hand_being_played] {
             match player_hand_val {

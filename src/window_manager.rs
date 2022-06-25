@@ -14,7 +14,7 @@ use crate::{
     player_manager::{Player, Players},
 };
 
-const BACKGROUND_PATH: &str = "./src/assets/table_img.png";
+const BACKGROUND_PATH: &str = "/home/mighty/projects/RustyJack/src/assets/table_img.png";
 
 pub struct ValueCoords {
     x_coord: i32,
@@ -166,7 +166,7 @@ impl WindowManager {
             win_or_lose_text_coords,
             show_counter: false,
             show_hint: false,
-            hint_str: String::new(),
+            hint_str: String::new()
         }
     }
 
@@ -219,7 +219,7 @@ impl WindowManager {
 
         let surface = match surface {
             Ok(surface) => surface,
-            Err(error) => panic!("failed to render text")
+            Err(error) => panic!("{:?}", error)
         };
 
         let texture = self
@@ -352,7 +352,7 @@ impl WindowManager {
     }
 
     pub fn render_hint(&mut self, font: &Font) {
-        let hint_str = self.hint_str.clone();
+        let hint_str = &self.hint_str.clone();
 
         let rect = Rect::new(
             self.value_coords.x_coord,
@@ -361,7 +361,9 @@ impl WindowManager {
             self.balance_and_bet.text_height,
         );
 
-        self.render_text(font, rect, &hint_str);
+        println!("{}", hint_str);
+
+        self.render_text(font, rect, hint_str);
     }
     pub fn refresh_screen(&mut self, players: &mut Players, shoe: &Shoe, font: &Font) {
         self.canvas.clear();
