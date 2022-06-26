@@ -1,6 +1,6 @@
 use crate::{
     card_manager::{Card, Shoe, SpecialCards},
-    game_logic::{self, get_hand_value},
+    game_logic::get_hand_value,
 };
 
 #[derive(Debug)]
@@ -178,7 +178,7 @@ pub fn check_if_hand_can_be_split(hand: &Vec<Card>) -> bool {
     }
 }
 
-pub fn return_hint(players: &mut Players) -> String {
+pub fn return_hint(players: &mut Players) -> Option<String> {
     let mut hint = String::new();
     let player = &mut players.players[0];
     let dealer = &mut players.dealer;
@@ -186,94 +186,130 @@ pub fn return_hint(players: &mut Players) -> String {
 
     let player_hand = &player.hands[which_hand].hand;
 
-    let player_hand_val = get_hand_value(&player_hand);
-    let dealer_hand_val = dealer.hands[0].hand[0].value;
+    let player_hand_val = Option::from(get_hand_value(&player_hand));
+    let dealer_hand_val = Option::from(dealer.hands[0].hand[0].value);
+
+    println!("p hand {:?}", player_hand_val);
+    println!("d hand {:?}", player_hand_val);
+
 
     if player.hands[which_hand].hand[0] != player.hands[which_hand].hand[1] {
         if !player.has_ace[player.which_hand_being_played] {
             match player_hand_val {
-                5..=8 => hint = String::from("Hit"),
-                9 => match dealer_hand_val {
-                    3..=6 => hint = String::from("Double"),
-                    _ => hint = String::from("Hit"),
+                Some(5..=8) => hint = String::from("Hit"),
+                Some(9) => match dealer_hand_val {
+                    Some(3..=6) => hint = String::from("Double"),
+                    Some(2 | 7..=11) => hint = String::from("Hit"),
+                    Some(_) => hint = String::from(" "),
+                    None => hint = String::from(" ")
                 },
-                10 => match dealer_hand_val {
-                    2..=9 => hint = String::from("Double"),
-                    _ => hint = String::from("Hit"),
+                Some(10) => match dealer_hand_val {
+                    Some(2..=9) => hint = String::from("Double"),
+                    Some(10..=11) => hint = String::from("Hit"),
+                    Some(_) => hint = String::from(" "),
+                    None => hint = String::from(" ")
                 },
-                11 => match dealer_hand_val {
-                    2..=10 => hint = String::from("Double"),
-                    11 => hint = String::from("Hit"),
-                    _ => {}
+                Some(11) => match dealer_hand_val {
+                    Some(2..=10) => hint = String::from("Double"),
+                    Some(11) => hint = String::from("Hit"),
+                    Some(_) => {hint = String::from(" ")},
+                    None => hint = String::from(" "),
                 },
-                12 => match dealer_hand_val {
-                    4..=6 => hint = String::from("Stand"),
-                    _ => hint = String::from("Hit"),
+                Some(12) => match dealer_hand_val {
+                    Some(4..=6) => hint = String::from("Stand"),
+                    Some(2..=3 | 7..=11) => hint = String::from("Hit"),
+                    Some(_) => hint = String::from(" "),
+                    None => hint = String::from(" ")
+
                 },
-                13..=16 => match dealer_hand_val {
-                    2..=6 => hint = String::from("Check"),
-                    _ => hint = String::from("Hit"),
+                Some(13..=16) => match dealer_hand_val {
+                    Some(2..=6) => hint = String::from("Stand"),
+                    Some(7..=11) => hint = String::from("Hit"),
+                    Some(_) => hint = String::from(" "),
+                    None => hint = String::from(" ")
                 },
-                17 => hint = String::from("Check"),
-                _ => {}
+                Some(17..=21) => hint = String::from("Stand"),
+                Some(_) => {hint = String::from(" ")},
+                None => hint = String::from(" "),
             }
         }
 
         if player.has_ace[player.which_hand_being_played] {
             match player_hand_val {
-                13..=14 => match dealer_hand_val {
-                    5..=6 => hint = String::from("Double"),
-                    _ => hint = String::from("Hit"),
+                Some(13..=14) => match dealer_hand_val {
+                    Some(5..=6) => hint = String::from("Double"),
+                    Some(_) => hint = String::from("Hit"),
+                    None => hint = String::from(" ")
                 },
-                15..=16 => match dealer_hand_val {
-                    4..=6 => hint = String::from("Double"),
-                    _ => hint = String::from("Hit"),
+                Some(15..=16) => match dealer_hand_val {
+                    Some(5..=6) => hint = String::from("Double"),
+                    Some(2..=4 | 7..=11) => hint = String::from("Hit"),
+                    Some(_) => hint = String::from(" "),
+                    None => hint = String::from(" ")
                 },
-                17 => match dealer_hand_val {
-                    3..=6 => hint = String::from("Double"),
-                    _ => hint = String::from("Hit"),
+                Some(17) => match dealer_hand_val {
+                    Some(3..=6) => hint = String::from("Double"),
+                    Some(1..=2 | 7..=11) => hint = String::from("Hit"),
+                    Some(_) => hint = String::from(" "),
+                    None => hint = String::from(" ")
                 },
-                18 => match dealer_hand_val {
-                    3..=6 => hint = String::from("Double"),
-                    9..=11 => hint = String::from("Hit"),
-                    _ => hint = String::from("Check"),
+                Some(18) => match dealer_hand_val {
+                    Some(3..=6) => hint = String::from("Double"),
+                    Some(9..=11) => hint = String::from("Hit"),
+                    Some(2 | 7..=8) => hint = String::from("Stand"),
+                    Some(_) => hint = String::from(" "),
+                    None => hint = String::from(" ")
                 },
-                _ => hint = String::from("Check"),
+                Some(19..=21) => hint = String::from("Stand"),
+                Some(_) => hint = String::from(" "),
+                None => hint = String::from(" ")
             }
         }
     } else {
         match player_hand_val {
-            4 | 6 => match dealer_hand_val {
-                2..=7 => hint = String::from("Split"),
-                _ => hint = String::from("Hit"),
+            Some(4 | 6) => match dealer_hand_val {
+                Some(2..=7) => hint = String::from("Split"),
+                Some(8..=11) => hint = String::from("Hit"),
+                Some(_) => hint = String::from(" "),
+                None => hint = String::from(" ")
             },
-            8 => match dealer_hand_val {
-                5..=6 => hint = String::from("Split"),
-                _ => hint = String::from("Hit"),
+            Some(8) => match dealer_hand_val {
+                Some(5..=6) => hint = String::from("Split"),
+                Some(2..=4 | 7..=11) => hint = String::from("Hit"),
+                Some(_) => hint = String::from(" "),
+                None => hint = String::from(" ")
             },
-            10 => match dealer_hand_val {
-                2..=9 => hint = String::from("Double"),
-                _ => hint = String::from("Hit"),
+            Some(10) => match dealer_hand_val {
+                Some(2..=9) => hint = String::from("Double"),
+                Some(10..=11) => hint = String::from("Hit"),
+                Some(_) => hint = String::from(" "),
+                None => hint = String::from(" ")
             },
-            12 => match dealer_hand_val {
-                2..=6 => hint = String::from("Split"),
-                _ => hint = String::from("Hit"),
+            Some(12) => match dealer_hand_val {
+                Some(2..=6) => hint = String::from("Split"),
+                Some(7..=11) => hint = String::from("Hit"),
+                Some(_) => hint = String::from(" "),
+                None => hint = String::from(" ")
             },
-            14 => match dealer_hand_val {
-                2..=7 => hint = String::from("Split"),
-                _ => hint = String::from("Hit"),
+            Some(14) => match dealer_hand_val {
+                Some(2..=7) => hint = String::from("Split"),
+                Some(8..=11) => hint = String::from("Hit"),
+                Some(_) => hint = String::from(" "),
+                None => hint = String::from(" ")
             },
-            16 => hint = String::from("Split"),
-            18 => match dealer_hand_val {
-                2..=6 | 8..=9 => hint = String::from("Split"),
-                _ => hint = String::from("Check"),
+            Some(16) => hint = String::from("Split"),
+            Some(18) => match dealer_hand_val {
+                Some(2..=6 | 8..=9) => hint = String::from("Split"),
+                Some(7 | 10..=11) => hint = String::from("Stand"),
+                Some(_) => hint = String::from(" "),
+                None => hint = String::from(" ")
             },
-            20 => hint = String::from("Check"),
-            _ => hint = String::from("Split"),
+            Some(20) => hint = String::from("Stand"),
+            Some(22) => hint = String::from("Split"),
+            Some(_) => hint = String::from(" "),
+            None => hint = String::from(" ")
         }
     }
 
-    println!("hint: {}", hint);
-
-    hint
+    Some(hint)
 }

@@ -350,7 +350,12 @@ impl WindowManager {
     }
 
     pub fn render_hint(&mut self, font: &Font, players: &mut Players) {
-        let hint_str = player_manager::return_hint(players);
+        let hint = player_manager::return_hint(players);
+        let mut hint_str = String::new();
+
+        if let Some(some_string) = hint {
+            hint_str = some_string
+        };
 
         let rect = Rect::new(
             self.value_coords.x_coord,
