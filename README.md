@@ -89,7 +89,7 @@ Once cloned and sdl2 is installed, run with cargo run.
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Basic game working
+- [X] Basic game working
     - [X] Cards are dealt to all players.
     - [X] Player can play against the dealer.
     - [X] Blackjack ends the round. 
