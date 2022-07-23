@@ -1,3 +1,5 @@
+use std::{fs, io::Write};
+
 use sdl2::{
     image::LoadTexture,
     pixels::Color,
@@ -5,16 +7,17 @@ use sdl2::{
     render::{Canvas, TextureCreator},
     ttf::Font,
     video::{Window, WindowContext},
-    EventPump, Sdl,
+    EventPump, Sdl, VideoSubsystem,
 };
 
 use crate::{
     card_manager::Shoe,
     game_logic,
-    player_manager::{Player, Players, self},
+    player_manager::{self, Player, Players},
 };
 
 const BACKGROUND_PATH: &str = "/home/mighty/projects/RustyJack/src/assets/table_img.png";
+const X_INDENT: i32 = 10;
 
 pub struct ValueCoords {
     pub x_coord: i32,
@@ -61,14 +64,14 @@ impl BalanceAndBet {
         let bet_amount_text = String::from("Bet: ");
 
         let bank_balance_coords = Rect::new(
-            10,
+            X_INDENT,
             y_coord,
             (bank_balance_text.len() * 10) as u32,
             text_height,
         );
 
         let bet_amount_text_coords = Rect::new(
-            10,
+            X_INDENT,
             y_coord + text_height as i32,
             (bank_balance_text.len() * 10) as u32,
             text_height,
@@ -97,7 +100,12 @@ pub struct InstructionText {
 impl InstructionText {
     fn init_inst_location(y_coord: i32, text_height: i32) -> InstructionText {
         let text = String::new();
-        let coords = Rect::new(10, y_coord, (text.len() * 10) as u32, text_height as u32);
+        let coords = Rect::new(
+            X_INDENT,
+            y_coord,
+            (text.len() * 10) as u32,
+            text_height as u32,
+        );
 
         InstructionText { coords, text }
     }
@@ -115,7 +123,6 @@ impl InstructionText {
 }
 
 pub struct WindowManager {
-    pub sdl_context: Sdl,
     pub canvas: Canvas<Window>,
     pub event_pump: EventPump,
     pub texture_creator: TextureCreator<WindowContext>,
@@ -129,11 +136,9 @@ pub struct WindowManager {
 
 impl WindowManager {
     pub fn new_window() -> WindowManager {
-        let sdl_context = sdl2::init().unwrap();
-        let video_subsys = sdl_context.video().unwrap();
-        let event_pump = sdl_context.event_pump().unwrap();
+        let (video, event_pump) = init_sdl_and_event_pump();
 
-        let window = video_subsys
+        let window = video
             .window("RustyJack", 800, 600)
             .fullscreen_desktop()
             .build()
@@ -155,7 +160,6 @@ impl WindowManager {
         canvas.clear();
 
         WindowManager {
-            sdl_context,
             canvas,
             event_pump,
             texture_creator,
@@ -211,13 +215,11 @@ impl WindowManager {
     }
 
     pub fn render_text(&mut self, font: &Font, rect: Rect, text: &str) {
-        let surface = font
-            .render(&text)
-            .blended(self.balance_and_bet.text_col);
+        let surface = font.render(&text).blended(self.balance_and_bet.text_col);
 
         let surface = match surface {
             Ok(surface) => surface,
-            Err(error) => panic!("{:?}", error)
+            Err(error) => panic!("{:?}", error),
         };
 
         let texture = self
@@ -364,8 +366,6 @@ impl WindowManager {
             self.balance_and_bet.text_height,
         );
 
-        println!("{}", hint_str);
-
         self.render_text(font, rect, &hint_str);
     }
     pub fn refresh_screen(&mut self, players: &mut Players, shoe: &Shoe, font: &Font) {
@@ -385,5 +385,98 @@ impl WindowManager {
             self.render_hint(font, players)
         }
         self.canvas.present();
+    }
+}
+
+fn init_sdl_and_event_pump() -> (VideoSubsystem, EventPump) {
+    let path = String::from("./src/log.txt");
+    let attempts = 0;
+
+    let sdl_context = create_sdl_context(attempts, &path);
+    let video_subsystem = build_subsys(&sdl_context, attempts, &path);
+    let event_pump = create_event_pump(&sdl_context, attempts, &path);
+
+    return (video_subsystem, event_pump);
+}
+
+fn create_sdl_context(mut attempts: u8, path: &str) -> Sdl {
+    if fs::metadata(path).is_ok() {
+        fs::remove_file(path).unwrap();
+    };
+
+    let mut log = fs::File::create(path).unwrap();
+
+    log = fs::OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(path)
+        .unwrap();
+
+    attempts += 1;
+    if attempts <= 10 {
+        let sdl_context = match sdl2::init() {
+            Ok(sdl) => {
+                writeln!(log, "Success! Sdl initialized").unwrap();
+                sdl
+            }
+            Err(e) => {
+                writeln!(log, "Failed to create sdl due to error: {:?}", e).unwrap();
+                create_sdl_context(attempts, path)
+            }
+        };
+        return sdl_context;
+    } else {
+        panic!("Failed to create sdl context. Check log.txt for details")
+    }
+}
+
+fn build_subsys(sdl_context: &Sdl, mut attempts: u8, path: &str) -> VideoSubsystem {
+    attempts += 1;
+    let mut log = fs::OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(path)
+        .unwrap();
+
+    if attempts <= 10 {
+        let video_subsystem = match sdl_context.video() {
+            Ok(video) => {
+                writeln!(log, "Success! Video subsystem initialized").unwrap();
+                video
+            }
+            Err(e) => {
+                writeln!(log, "Failed to initialize video subsystem due to: {}", e).unwrap();
+                build_subsys(sdl_context, attempts, path)
+            }
+        };
+        return video_subsystem;
+    } else {
+        panic!("Failed to create video subsystem. Check log.txt for more information")
+    }
+}
+
+fn create_event_pump(sdl_context: &Sdl, mut attempts: u8, path: &str) -> EventPump {
+    let mut log = fs::OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(path)
+        .unwrap();
+
+    attempts += 1;
+
+    if attempts <= 10 {
+        let event_pump = match sdl_context.event_pump() {
+            Ok(event) => {
+                writeln!(log, "Success! Event pump created").unwrap();
+                event
+            }
+            Err(e) => {
+                writeln!(log, "Failed to create event pump due to: {}", e).unwrap();
+                create_event_pump(sdl_context, attempts, path)
+            }
+        };
+        return event_pump;
+    } else {
+        panic!("Failed to create event pump. Check log.txt for more information")
     }
 }

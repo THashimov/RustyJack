@@ -14,12 +14,14 @@ use window_manager::WindowManager;
 fn main() {
     let mut window = WindowManager::new_window();
     let ttf_context = sdl2::ttf::init().unwrap();
-    let font = ttf_context
-        .load_font("/home/mighty/projects/RustyJack/src/assets/fonts/Raleway-Black.ttf", 128);
-    
+    let font = ttf_context.load_font(
+        "/home/mighty/projects/RustyJack/src/assets/fonts/Raleway-Black.ttf",
+        128,
+    );
+
     let font = match font {
         Ok(font) => font,
-        Err(err) => panic!("{}",  err)
+        Err(err) => panic!("{}", err),
     };
 
     let mut shoe = Shoe::create_shoe();
@@ -38,16 +40,20 @@ fn main() {
                 game_logic::deal_again(&mut players, &mut shoe, &window.window_size)
             }
             KeyStroke::KeepPlaying => {}
-            KeyStroke::Counter => {if window.show_counter == true {
-                window.show_counter = false
-            } else {
-                window.show_counter = true
-            }},
-            KeyStroke::Hint => {if window.show_hint == true {
-                window.show_hint = false
-            } else {
-                window.show_hint = true
-            }},
+            KeyStroke::Counter => {
+                if window.show_counter == true {
+                    window.show_counter = false
+                } else {
+                    window.show_counter = true
+                }
+            }
+            KeyStroke::Hint => {
+                if window.show_hint == true {
+                    window.show_hint = false
+                } else {
+                    window.show_hint = true
+                }
+            }
         }
 
         if !players.players[0].all_hands_played {
