@@ -16,7 +16,7 @@ fn main() {
     let mut window = WindowManager::new_window();
     let ttf_context = sdl2::ttf::init().unwrap();
     let font = ttf_context.load_font(
-        "/home/mighty/projects/RustyJack/src/assets/fonts/Raleway-Black.ttf",
+        "./src/assets/fonts/Raleway-Black.ttf",
         128,
     );
 

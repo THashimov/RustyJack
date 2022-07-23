@@ -111,7 +111,7 @@ impl Shoe {
 }
 
 pub fn get_img_src_for_card(value: Option<u8>, suit: Option<Suit>) -> Option<String> {
-    let mut path = String::from("/home/mighty/projects/RustyJack/src/assets/");
+    let mut path = String::from("./src/assets/");
 
     match value {
         Some(2) => path.push_str("2"),

@@ -16,7 +16,7 @@ use crate::{
     player_manager::{self, Player, Players},
 };
 
-const BACKGROUND_PATH: &str = "/home/mighty/projects/RustyJack/src/assets/table_img.png";
+const BACKGROUND_PATH: &str = "./src/assets/table_img.png";
 const X_INDENT: i32 = 10;
 
 pub struct ValueCoords {

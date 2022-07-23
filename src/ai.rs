@@ -35,8 +35,6 @@ fn check_for_best_move(player: &mut Player, dealer: &mut Player) -> BestMove {
 
     hint_str = hint_str.to_ascii_lowercase();
 
-    println!("{:?}", hint_str);
-
     match hint_str.as_str() {
         "hit" => return BestMove::Hit,
         "stand" => return BestMove::Stand,
