@@ -76,6 +76,8 @@ To get a local copy up and running follow these simple example steps.
    sudo apt-get install libsdl2-dev
    sudo apt-get install libsdl2-image-dev
    sudo apt-get install libsdl2-gfx-dev
+   cd Rustyjack
+   cargo r
    ```
 <p align="right">(<a href="#top">back to top</a>)</p>
 
