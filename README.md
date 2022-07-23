@@ -98,8 +98,8 @@ Once cloned and sdl2 is installed, run with cargo run.
     - [X] Basic strategy hints.
     - [X] Card counting hints.
 - [ ] AI
-    - [ ] Other players draw cards.
-    - [ ] Other players play basic strategy. 
+    - [X] Other players draw cards.
+    - [X] Other players play basic strategy. 
 - [ ] Online
     - [ ] Create and join lobbies
 - [ ] Cross-compile for Windows and Mac 
