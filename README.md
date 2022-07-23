@@ -73,6 +73,7 @@ To get a local copy up and running follow these simple example steps.
    ```
 2. Install sdl2 
    ```sh
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
    sudo apt-get install libsdl2-dev
    sudo apt-get install libsdl2-image-dev
    sudo apt-get install libsdl2-gfx-dev
