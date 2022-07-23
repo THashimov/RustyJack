@@ -3,6 +3,7 @@ mod game_logic;
 mod player_input_manager;
 mod player_manager;
 mod split_logic;
+mod ai;
 mod tests;
 mod window_manager;
 
@@ -65,8 +66,10 @@ fn main() {
                 game_logic::stand(&mut players.dealer, &mut shoe);
                 game_logic::check_for_winner(&mut players);
                 players.players[0].has_checked = false;
+                ai::ai_turn(&mut players, &mut shoe);
             } else if players.players[0].has_checked && players.players[0].has_split {
                 split_logic::check_split_hands_for_win_and_update_winnings(&mut players);
+                ai::ai_turn(&mut players, &mut shoe);
                 players.players[0].has_checked = false;
             };
         };

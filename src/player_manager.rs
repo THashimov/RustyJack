@@ -178,10 +178,8 @@ pub fn check_if_hand_can_be_split(hand: &Vec<Card>) -> bool {
     }
 }
 
-pub fn return_hint(players: &mut Players) -> Option<String> {
+pub fn return_hint(player: &mut Player, dealer: &mut Player) -> Option<String> {
     let mut hint = String::new();
-    let player = &mut players.players[0];
-    let dealer = &mut players.dealer;
     let which_hand = player.which_hand_being_played;
 
     let player_hand = &player.hands[which_hand].hand;

@@ -352,7 +352,7 @@ impl WindowManager {
     }
 
     pub fn render_hint(&mut self, font: &Font, players: &mut Players) {
-        let hint = player_manager::return_hint(players);
+        let hint = player_manager::return_hint(&mut players.players[0], &mut players.dealer);
         let mut hint_str = String::new();
 
         if let Some(some_string) = hint {
