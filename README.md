@@ -48,7 +48,7 @@
 
 ![product-screenshot](./src/assets/screenshot.jpg)
 
-I wanted to tackle a project which could have many features as a way of learning rust and how to develop desktop applications. Although it's a simple game there are a few avenues it can go down to add complexety and learn some new things such as networking and AI.
+I decided to tackle blacckjack because it's a simple game but there is a surprising amout of logic which makes it quite a tricky project. This has been my biggest project so far and I loved building it! 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -69,7 +69,7 @@ To get a local copy up and running follow these simple example steps.
 
 1. Clone the repo
    ```sh
-   git clone git@github.com:MightyGiant21/RustyJack.git
+   git clone git@github.com:THashimov/RustyJack.git
    ```
 2. Install sdl2 
    ```sh
