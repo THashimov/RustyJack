@@ -6,7 +6,7 @@
 <h3 align="center">RustyJack</h3>
 
   <p align="center">
-    A blackjack game made in pure rust, using SDL2 for the rendering. Currently just a desktop app but I plan to implement many features. This is purely an educational project. Currently only tested on Ubuntu
+    A blackjack game made in pure rust, using SDL2 for the rendering. Currently just a desktop app but I plan to implement many features. This is purely an educational project. Only tested on Ubuntu
     <br />
     <br />
     <br />
