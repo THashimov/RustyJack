@@ -48,7 +48,7 @@
 
 ![product-screenshot](./src/assets/screenshot.jpg)
 
-I decided to tackle blacckjack because it's a simple game but there is a surprising amout of logic which makes it quite a tricky project. This has been my biggest project so far and I loved building it! 
+I decided to tackle blackjack because it's a simple game but there is a surprising amount of logic which makes it quite a tricky project. This has been my biggest project so far and I loved building it! 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -94,7 +94,7 @@ Once cloned and sdl2 is installed, run with cargo run.
 
 - [X] Basic game working
     - [X] Cards are dealt to all players.
-    - [X] Player can play against the dealer.
+    - [X] Players can play against the dealer.
     - [X] Blackjack ends the round. 
     - [X] Double working correctly.
     - [X] Hand splitting.
