@@ -76,8 +76,11 @@ pub fn check_for_blackjack_and_bust(player: &mut Player) {
     } else if hand_val == 21 {
         if player.hands[which_hand].hand.len() <= 2 && !player.has_split {
             player_has_bj(player);
-        } else {
+        } else if player.has_split {
             change_hand_being_played(player);
+        } else {
+            player.all_hands_played = true;
+            player.has_checked = true;
         }
     }
     if player.is_bust[0] || player.has_blackjack[0] {
@@ -97,7 +100,6 @@ fn player_has_bj(player: &mut Player) {
 
 fn player_is_bust(player: &mut Player) {
     player.is_bust[player.which_hand_being_played] = true;
-    player.bank_balance -= player.bet[player.which_hand_being_played];
     split_logic::change_hand_being_played(player);
 }
 
@@ -168,7 +170,7 @@ pub fn deal_again(players: &mut Players, shoe: &mut Shoe, window_size: &(u32, u3
     players.deal_cards(shoe, &window_size);
 }
 
-// This only runs if player hasn't split.
+// This only runs if player hasn't split. Split winner check is handled in the split module
 pub fn check_for_winner(players: &mut Players) {
     let player_hand_val = get_hand_value(&players.players[0].hands[0].hand);
     let dealer_hand_val = get_hand_value(&players.dealer.hands[0].hand);
@@ -193,7 +195,7 @@ pub fn check_for_winner(players: &mut Players) {
     update_player_winnings(players);
 }
 
-// This only runs if player hasn't split
+// This only runs if player hasn't split. Split winner check is handled in the split module
 pub fn update_player_winnings(players: &mut Players) {
     let player = &mut players.players[0];
     let dealer = &mut players.dealer;

@@ -1,5 +1,5 @@
 use crate::{
-    card_manager::Shoe,
+    card_manager::{Shoe, Card},
     player_manager::{Hand, Players},
 };
 
@@ -7,6 +7,7 @@ use crate::{
 #[cfg(test)]
 mod tests {
     use crate::card_manager::{self, Card, Shoe, Suit};
+    use crate::game_logic::check_for_blackjack_and_bust;
     use crate::player_manager::{Hand, Players};
     use crate::tests::change_hand_being_played;
     use crate::window_manager::WindowManager;
