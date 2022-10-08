@@ -59,7 +59,7 @@ impl BalanceAndBet {
     fn new_balance_details(window_size: &(u32, u32)) -> BalanceAndBet {
         let text_height = window_size.0 / 35;
         let y_coord = (window_size.1 / 4) as i32;
-        let text_col = Color::RGB(0, 0, 0);
+        let text_col = Color::RGB(100, 200, 200);
         let bank_balance_text = String::from("Balance: ");
         let bet_amount_text = String::from("Bet: ");
 
@@ -298,10 +298,10 @@ impl WindowManager {
         }
 
         self.win_or_lose_text_coords = Rect::new(
-            ((self.window_size.0 / 2) - ((text.len() * 10) as u32 / 2)) as i32,
+            ((self.window_size.0 / 2) - ((text.len() * 20) as u32 / 2)) as i32,
             (self.window_size.1 / 2) as i32,
-            (text.len() * 10) as u32,
-            self.balance_and_bet.text_height,
+            (text.len() * 20) as u32,
+            self.balance_and_bet.text_height + 40,
         );
 
         self.render_text(font, self.win_or_lose_text_coords, &text);
@@ -399,6 +399,7 @@ fn init_sdl_and_event_pump() -> (VideoSubsystem, EventPump) {
     return (video_subsystem, event_pump);
 }
 
+#[allow(unused_assignments)]
 fn create_sdl_context(mut attempts: u8, path: &str) -> Sdl {
     if fs::metadata(path).is_ok() {
         fs::remove_file(path).unwrap();
