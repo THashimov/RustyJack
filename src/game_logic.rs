@@ -205,12 +205,14 @@ pub fn update_player_winnings(players: &mut Players) {
             player.bank_balance += player.bet[0]
         } else if !player.has_won[0] && dealer.has_won[0] {
             player.bank_balance = player.bank_balance.overflowing_sub(player.bet[0]).0;
-        // if balance reaches 0, end the game
-        // Todo
         } else if player.has_won[0] && dealer.has_won[0] {
         }
     } else if player.has_blackjack[0] && get_hand_value(&dealer.hands[0].hand) != 21 {
         player.bank_balance += player.bet[0] * 2;
     } else {
+    }
+
+    if player.bank_balance <= 0 {
+        panic!()
     }
 }

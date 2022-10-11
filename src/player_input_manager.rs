@@ -90,12 +90,15 @@ pub fn check_for_key_press(
                     && !dealer.has_won[0]
                     && !player.all_hands_played
                 {
+                    if player.has_split {
+                        split_logic::double_split_bet(player);
+                    }
                     game_logic::hit(player, shoe);
-                    split_logic::double_split_bet(player);
                     player.has_doubled[which_hand] = true;
-                    if player.all_hands_played {
+                    if player.all_hands_played || !player.has_split {
                         game_logic::stand(dealer, shoe);
                         player.has_checked = true;
+                        player.all_hands_played = true;
                     }
                 }
             }

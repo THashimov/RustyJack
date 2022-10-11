@@ -46,7 +46,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-![product-screenshot](./src/assets/screenshot.jpg)
+![product-screenshot](./src/assets/screenshot.png)
 
 I decided to tackle blackjack because it's a simple game but there is a surprising amount of logic which makes it quite a tricky project. This has been my biggest project so far and I loved building it! 
 
@@ -77,6 +77,7 @@ To get a local copy up and running follow these simple example steps.
    sudo apt-get install libsdl2-dev
    sudo apt-get install libsdl2-image-dev
    sudo apt-get install libsdl2-gfx-dev
+   sudo apt-get install libsdl2-ttf-dev
    cd Rustyjack
    cargo r
    ```
